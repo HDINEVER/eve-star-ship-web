@@ -1,56 +1,118 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { FACTIONS } from '../data';
-import { GlassCard } from '../components/SciFiUI';
+import { GsapGlassCard } from '../components/SciFiUI';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+import { ChevronRight, Zap } from 'lucide-react';
 
 export const Home: React.FC = () => {
-  return (
-    <div className="container mx-auto px-4 py-10 flex flex-col items-center justify-center min-h-[80vh]">
-      <motion.div
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="text-center mb-16"
-      >
-        <h1 className="text-6xl md:text-8xl font-orbitron font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-white to-cyan-400 tracking-wider mb-4 animate-pulse">
-          EVE
-        </h1>
-        <p className="text-xl text-gray-400 font-rajdhani tracking-[0.5em] uppercase border-t border-b border-gray-800 py-2 inline-block">
-          Select Your Allegiance
-        </p>
-      </motion.div>
+  const containerRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl">
+  useGSAP(() => {
+    // Title Animation
+    gsap.fromTo(titleRef.current,
+        { opacity: 0, y: -50 },
+        { 
+            opacity: 1, 
+            y: 0, 
+            duration: 1.2, 
+            ease: "power3.out" 
+        }
+    );
+  }, { scope: containerRef });
+
+  return (
+    <div ref={containerRef} className="container mx-auto px-4 py-12 flex flex-col items-center justify-center min-h-[85vh] relative z-10">
+      
+      {/* Main Title - Pure Orbitron Dominance */}
+      <div className="text-center mb-20 relative">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-blue-500/10 blur-[100px] rounded-full pointer-events-none" />
+        <h1 ref={titleRef} className="relative z-10 text-6xl md:text-9xl font-orbitron font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-cyan-100 to-cyan-900 tracking-tighter drop-shadow-[0_0_25px_rgba(34,211,238,0.3)]">
+            NEW EDEN
+        </h1>
+        <div className="flex items-center justify-center gap-4 mt-2">
+             <div className="h-[1px] w-12 bg-cyan-500/50" />
+             <p className="text-sm text-cyan-400 font-['Noto_Sans_SC'] font-bold tracking-[0.8em] uppercase">
+                星战前夜 / 编年史
+             </p>
+             <div className="h-[1px] w-12 bg-cyan-500/50" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full max-w-7xl">
         {Object.values(FACTIONS).map((faction, index) => (
-          <Link to={`/${faction.id}`} key={faction.id}>
-            <GlassCard 
-              borderColor={faction.color} 
-              delay={index * 0.2}
-              className="h-full flex flex-col items-center text-center transition-all duration-300 hover:scale-105 hover:bg-white/5 cursor-pointer"
-            >
-              <div className="relative w-32 h-32 mb-6 rounded-full border-2 p-1" style={{ borderColor: faction.color, boxShadow: `0 0 20px ${faction.glowColor}` }}>
-                 <div className="w-full h-full rounded-full overflow-hidden bg-black">
-                    <img 
-                        src={faction.logo} 
-                        alt={faction.name} 
-                        className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" 
-                    />
-                 </div>
-              </div>
-              
-              <h2 className="text-2xl font-orbitron font-bold mb-2 uppercase" style={{ color: faction.color }}>
-                {faction.name}
-              </h2>
-              <p className="text-gray-400 font-rajdhani text-sm mb-4 border-t border-gray-700/50 pt-2 w-full">
-                {faction.tagline}
-              </p>
-              
-              <div className="mt-auto opacity-0 group-hover:opacity-100 transition-opacity text-xs tracking-widest font-orbitron" style={{ color: faction.color }}>
-                [ INITIATE WARP ]
-              </div>
-            </GlassCard>
-          </Link>
+          <div key={faction.id} className="h-full">
+            <Link to={`/${faction.id}`} className="block h-full perspective-1000">
+              <GsapGlassCard 
+                borderColor={faction.color} 
+                glowColor={faction.glowColor}
+                delay={index * 0.15 + 0.3}
+                className="h-[550px] flex flex-col relative group transition-all duration-500"
+              >
+                
+                {/* 1. Background Large Logo (Abstract & Decorative) */}
+                <div className="absolute -right-16 -top-16 w-80 h-80 opacity-10 group-hover:opacity-20 group-hover:rotate-12 transition-all duration-700 ease-in-out pointer-events-none grayscale group-hover:grayscale-0">
+                    <img src={faction.logo} alt="" className="w-full h-full object-contain" />
+                </div>
+
+                {/* 2. Content Container - Pushed to Bottom */}
+                <div className="mt-auto relative z-10 p-2 flex flex-col h-full justify-end">
+                    
+                    {/* Faction ID Number */}
+                    <div className="mb-auto pt-4 pl-2 font-rajdhani text-xs text-white/30 tracking-widest group-hover:text-white/60 transition-colors">
+                        SEC_ID // 0{index + 1}
+                    </div>
+
+                    <div className="pl-4 border-l-2 transition-all duration-300 group-hover:border-l-4 pr-4" style={{ borderColor: faction.color }}>
+                        {/* Dominant English Title */}
+                        <h2 className="text-5xl font-orbitron font-black uppercase leading-none text-white drop-shadow-lg transform group-hover:translate-x-2 transition-transform duration-300">
+                            {faction.shortName}
+                        </h2>
+                        
+                        {/* Tiny Chinese Subtext (HeiTi / Noto Sans SC) */}
+                        <div className="mt-2 flex items-center gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                            <span className="font-['Noto_Sans_SC'] font-bold text-[10px] tracking-[0.6em] text-white/80 bg-white/10 px-2 py-0.5 rounded-sm">
+                                {faction.name}
+                            </span>
+                            <span className="h-[1px] flex-1 bg-gradient-to-r from-white/30 to-transparent"></span>
+                        </div>
+
+                        {/* Description Reveal on Hover */}
+                        <div className="overflow-hidden max-h-0 group-hover:max-h-20 transition-all duration-500 ease-in-out mt-0 group-hover:mt-4">
+                            <p className="font-rajdhani text-sm text-gray-300 leading-tight">
+                                {faction.tagline}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* 3. New "Initialize" Button Area */}
+                    <div className="mt-8 relative h-14 overflow-hidden">
+                        {/* Default State: Thin Line & Text */}
+                        <div className="absolute inset-0 flex items-center justify-between border-t border-white/10 px-4 group-hover:translate-y-full transition-transform duration-300">
+                            <span className="font-orbitron text-xs tracking-[0.3em] text-gray-500">ACCESS DENIED</span>
+                            <Zap size={14} className="text-gray-600" />
+                        </div>
+
+                        {/* Hover State: Full Color Block */}
+                        <div 
+                            className="absolute inset-0 flex items-center justify-between px-6 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"
+                            style={{ backgroundColor: faction.color }}
+                        >
+                            <span className="font-orbitron font-bold text-black text-lg tracking-widest uppercase">
+                                Initialize
+                            </span>
+                            <div className="bg-black/20 p-1 rounded">
+                                <ChevronRight size={20} className="text-black" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+              </GsapGlassCard>
+            </Link>
+          </div>
         ))}
       </div>
     </div>

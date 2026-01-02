@@ -13,7 +13,8 @@
     "react-dom": "^19.2.3",
     "lucide-react": "^0.562.0",
     "react-router-dom": "^7.11.0",
-    "framer-motion": "^12.23.26"
+    "gsap": "3.12.5",
+    "@gsap/react": "2.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
