@@ -1,17 +1,17 @@
 import { FactionData } from './types';
 
 // ============================================
-// 3D模型接口规范 (Interface Specification)
+// 3D 模型接口规范 (Interface Specification)
 // ============================================
 // Base URL: https://eve-ss-empire-eve.pages.dev/
 // 
-// URL参数:
+// URL 参数：
 //   - ship: 飞船唯一标识符 (必需)
 //   - faction: 势力标识符 (可选，用于主题色)
 //
-// 示例: https://eve-ss-empire-eve.pages.dev/?ship=imperial&faction=amarr
+// 示例：https://eve-ss-empire-eve.pages.dev/?ship=imperial&faction=amarr
 //
-// 飞船ID映射表 (Ship ID Mapping):
+// 飞船 ID 映射表 (Ship ID Mapping):
 // ┌─────────────┬──────────────┬─────────────────────────────────┐
 // │ Faction     │ Ship ID      │ Ship Name                       │
 // ├─────────────┼──────────────┼─────────────────────────────────┤
@@ -29,10 +29,10 @@ import { FactionData } from './types';
 // └─────────────┴──────────────┴─────────────────────────────────┘
 // ============================================
 
-// 3D模型基础URL
+// 3D 模型基础 URL
 const MODEL_BASE_URL = 'https://eve-ss-empire-eve.pages.dev/';
 
-// 生成模型URL的辅助函数
+// 生成模型 URL 的辅助函数
 const getModelUrl = (shipId: string, factionId: string): string => {
   return `${MODEL_BASE_URL}?ship=${shipId}&faction=${factionId}`;
 };
@@ -89,7 +89,7 @@ export const FACTIONS: Record<string, FactionData> = {
     id: 'caldari',
     name: '加达里合众国', // Caldari State
     shortName: 'CALDARI',
-    tagline: '已被收购ovo', // Acquired ovo
+    tagline: '已被收购 ovo', // Acquired ovo
     color: '#44ffdd', // Cyan
     glowColor: 'rgba(68, 255, 221, 0.8)',
     bgImage: 'https://picsum.photos/1920/1080?grayscale&blur=2',
@@ -165,4 +165,90 @@ export const FACTIONS: Record<string, FactionData> = {
     ],
     videoUrl: "https://pub-ef918f4135654b1caa2833736c639ae1.r2.dev/vedio-main-page/pluto-video.mp4"
   }
+};  glow: 'rgba(68, 255, 221, 0.5)',
+    background: '#001a18'
+  },
+  gallente: {
+    primary: '#a855f7',
+    glow: 'rgba(168, 85, 247, 0.5)',
+    background: '#0f001a'
+  }
 };
+```
+
+### 3. 主应用组件
+
+```typescript
+// src/App.tsx
+import { useShipParams } from './hooks/useShipParams';
+import { SHIP_CONFIGS, FACTION_THEMES } from './config/ships';
+import { ShipViewer } from './components/ShipViewer';
+
+function App() {
+  const { shipId, factionId } = useShipParams();
+  
+  const shipConfig = SHIP_CONFIGS[shipId] || SHIP_CONFIGS['imperial'];
+  const theme = FACTION_THEMES[factionId] || FACTION_THEMES['amarr'];
+  
+  return (
+    <div style={{ background: theme.background }}>
+      <ShipViewer 
+        modelPath={shipConfig.modelPath}
+        scale={shipConfig.scale}
+        cameraDistance={shipConfig.cameraDistance}
+        themeColor={theme.primary}
+        glowColor={theme.glow}
+      />
+      <h1 style={{ color: theme.primary }}>{shipConfig.name}</h1>
+    </div>
+  );
+}
+```
+
+## Cloudflare Pages 配置
+
+### 允许 iframe 嵌入
+
+在 `public/_headers` 文件中添加：
+
+```
+/*
+  X-Frame-Options: ALLOWALL
+  Content-Security-Policy: frame-ancestors 'self' https://*.pages.dev https://eve-star-ship-web.pages.dev http://localhost:*
+```
+
+## 测试URL示例
+
+```
+# 艾玛帝国 - 帝国号
+https://eve-ss-empire-eve.pages.dev/?ship=imperial&faction=amarr
+
+# 加达里 - 娜迦级
+https://eve-ss-empire-eve.pages.dev/?ship=naga&faction=caldari
+
+# 盖伦特 - 特里斯坦
+https://eve-ss-empire-eve.pages.dev/?ship=tristan&faction=gallente
+```
+
+## 通信扩展（可选）
+
+如果需要主网站与3D模型页面双向通信，可以使用 `postMessage`：
+
+```typescript
+// 3D 模型项目 - 接收消息
+window.addEventListener('message', (event) => {
+  if (event.origin !== 'https://eve-star-ship-web.pages.dev') return;
+  
+  const { type, payload } = event.data;
+  if (type === 'CHANGE_SHIP') {
+    // 切换飞船模型
+    loadShipModel(payload.shipId);
+  }
+});
+
+// 3D 模型项目 - 发送消息给父窗口
+window.parent.postMessage({
+  type: 'MODEL_LOADED',
+  payload: { shipId: 'imperial' }
+}, '*');
+```

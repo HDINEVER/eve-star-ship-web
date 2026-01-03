@@ -9,6 +9,7 @@ interface CardProps {
   glowColor?: string;
   delay?: number;
   hoverEffect?: boolean;
+  onClick?: () => void;
 }
 
 // Register GSAP plugins
@@ -32,7 +33,8 @@ export const GsapGlassCard: React.FC<CardProps> = ({
   borderColor = '#44ffdd', 
   glowColor = 'rgba(68, 255, 221, 0.3)',
   delay = 0,
-  hoverEffect = true
+  hoverEffect = true,
+  onClick
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const scanlineRef = useRef<HTMLDivElement>(null);
@@ -106,6 +108,7 @@ export const GsapGlassCard: React.FC<CardProps> = ({
   return (
     <div 
       ref={cardRef}
+      onClick={onClick}
       className={`relative group bg-black/60 backdrop-blur-md border border-white/15 overflow-hidden will-change-transform gpu-accelerated shadow-2xl shadow-black/50 ${className}`}
       style={{
         // More aggressive Cyberpunk angled cut

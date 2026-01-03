@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, Navigate, Link } from 'react-router-dom';
 import { FACTIONS } from '../data';
 import { GsapGlassCard, SectionHeader } from '../components/SciFiUI';
-import { ChevronLeft } from 'lucide-react';
+import { ShipModelViewer } from '../components/ShipModelViewer';
+import { ChevronLeft, View } from 'lucide-react';
+import { ShipData } from '../types';
 
 const BackButton: React.FC<{ factionId: string; color: string }> = ({ factionId, color }) => (
     <Link 
@@ -59,7 +61,26 @@ export const FactionInfo: React.FC = () => {
 export const FactionShips: React.FC = () => {
     const { factionId } = useParams<{ factionId: string }>();
     const faction = factionId ? FACTIONS[factionId] : null;
+    
+    // 模态框状态
+    const [selectedShip, setSelectedShip] = useState<ShipData | null>(null);
+    const [isViewerOpen, setIsViewerOpen] = useState(false);
+
     if (!faction) return <Navigate to="/" />;
+
+    // 打开3D查看器
+    const handleShipClick = (ship: ShipData) => {
+        if (ship.modelUrl) {
+            setSelectedShip(ship);
+            setIsViewerOpen(true);
+        }
+    };
+
+    // 关闭3D查看器
+    const handleCloseViewer = () => {
+        setIsViewerOpen(false);
+        setSelectedShip(null);
+    };
 
     return (
         <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
@@ -68,9 +89,29 @@ export const FactionShips: React.FC = () => {
             
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-8">
                 {faction.ships.map((ship, idx) => (
-                    <GsapGlassCard key={idx} borderColor={faction.color} delay={idx * 0.15} className="group">
+                    <GsapGlassCard 
+                        key={idx} 
+                        borderColor={faction.color} 
+                        delay={idx * 0.15} 
+                        className={`group ${ship.modelUrl ? 'cursor-pointer' : ''}`}
+                        onClick={() => handleShipClick(ship)}
+                    >
                         <div className="h-24 sm:h-36 lg:h-48 mb-2 sm:mb-4 lg:mb-6 relative border-b border-white/10 bg-gradient-to-b from-transparent to-black/50">
                             <img src={ship.imageUrl} alt={ship.name} className="w-full h-full object-contain p-1 sm:p-2 transition-transform duration-500 group-hover:scale-110" />
+                            
+                            {/* 3D模型可用标识 */}
+                            {ship.modelUrl && (
+                                <div 
+                                    className="absolute top-1 right-1 sm:top-2 sm:right-2 flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[8px] sm:text-xs font-orbitron bg-black/70 border backdrop-blur-sm transition-all group-hover:scale-110"
+                                    style={{ 
+                                        borderColor: faction.color,
+                                        color: faction.color
+                                    }}
+                                >
+                                    <View size={10} className="sm:w-3 sm:h-3" />
+                                    <span className="hidden sm:inline">3D</span>
+                                </div>
+                            )}
                         </div>
                         
                         <div className="px-1.5 sm:px-2 pb-2">
@@ -79,10 +120,29 @@ export const FactionShips: React.FC = () => {
                                 {ship.class}
                             </div>
                             <p className="font-rajdhani text-gray-300 text-[10px] sm:text-xs lg:text-sm h-6 sm:h-8 lg:h-12 overflow-hidden leading-tight sm:leading-relaxed hidden sm:block">{ship.description}</p>
+                            
+                            {/* 点击提示 */}
+                            {ship.modelUrl && (
+                                <p className="text-[8px] sm:text-[10px] text-gray-500 mt-1 sm:mt-2 font-orbitron opacity-0 group-hover:opacity-100 transition-opacity">
+                                    CLICK TO VIEW 3D MODEL →
+                                </p>
+                            )}
                         </div>
                     </GsapGlassCard>
                 ))}
             </div>
+
+            {/* 3D模型查看器模态框 */}
+            {selectedShip && (
+                <ShipModelViewer
+                    isOpen={isViewerOpen}
+                    onClose={handleCloseViewer}
+                    modelUrl={selectedShip.modelUrl || ''}
+                    shipName={selectedShip.name}
+                    shipClass={selectedShip.class}
+                    factionColor={faction.color}
+                />
+            )}
         </div>
     );
 };

@@ -21,6 +21,7 @@ export interface ShipData {
   class: string;
   description: string;
   imageUrl: string;
+  modelUrl?: string; // 3D模型页面URL (部署在Cloudflare Pages)
 }
 
 export interface NavItem {
