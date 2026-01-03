@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D模型嵌入测试 - Imperial</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      background: #0a0a0f;
+      color: white;
+      font-family: 'Courier New', monospace;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      color: #d4af37;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .test-info {
+      background: #1a1a2e;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border: 1px solid #d4af37;
+    }
+    
+    .test-info h2 {
+      color: #d4af37;
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+    
+    .test-info p {
+      margin: 8px 0;
+      color: #aaa;
+    }
+    
+    .url {
+      background: #0a0a0f;
+      padding: 10px;
+      border-radius: 4px;
+      color: #44ffdd;
+      word-break: break-all;
+      margin: 10px 0;
+    }
+    
+    .iframe-container {
+      position: relative;
+      width: 100%;
+      height: 600px;
+      border: 2px solid #d4af37;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #000;
+    }
+    
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    
+    .status {
+      margin-top: 20px;
+      padding: 15px;
+      background: #1a1a2e;
+      border-radius: 8px;
+      border-left: 4px solid #d4af37;
+    }
+    
+    .status.error {
+      border-left-color: #ff4444;
+    }
+    
+    .status.success {
+      border-left-color: #44ff44;
+    }
+    
+    .console-output {
+      background: #0a0a0f;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+      font-size: 12px;
+    }
+    
+    .log-entry {
+      margin: 5px 0;
+      padding: 5px;
+      border-left: 3px solid #666;
+      padding-left: 10px;
+    }
+    
+    .log-error {
+      border-left-color: #ff4444;
+      color: #ff8888;
+    }
+    
+    .log-warn {
+      border-left-color: #ffaa44;
+      color: #ffcc88;
+    }
+    
+    .log-info {
+      border-left-color: #44aaff;
+      color: #88ccff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚀 EVE 3D 模型嵌入测试 - Imperial Issue</h1>
+    
+    <div class="test-info">
+      <h2>📋 测试信息</h2>
+      <p><strong>测试船只:</strong> Imperial Issue (帝国号)</p>
+      <p><strong>Ship ID:</strong> <code>imperial</code></p>
+      <p><strong>Faction ID:</strong> <code>amarr</code></p>
+      <p><strong>完整URL:</strong></p>
+      <div class="url" id="iframe-url">加载中...</div>
+      <p><strong>测试时间:</strong> <span id="test-time"></span></p>
+    </div>
+    
+    <div class="iframe-container" id="iframe-container">
+      <iframe 
+        id="model-iframe"
+        src="https://eve-ss-empire-eve.pages.dev/?ship=imperial&faction=amarr"
+        allowfullscreen
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; fullscreen"
+      ></iframe>
+    </div>
+    
+    <div class="status" id="status">
+      <h3>⏳ 加载状态</h3>
+      <p id="status-text">正在初始化...</p>
+      <div class="console-output" id="console-output">
+        <div class="log-entry log-info">等待 iframe 加载...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 设置测试时间
+    document.getElementById('test-time').textContent = new Date().toLocaleString('zh-CN');
+    
+    const iframe = document.getElementById('model-iframe');
+    const iframeUrl = iframe.src;
+    document.getElementById('iframe-url').textContent = iframeUrl;
+    
+    const statusDiv = document.getElementById('status');
+    const statusText = document.getElementById('status-text');
+    const consoleOutput = document.getElementById('console-output');
+    
+    function addLog(message, type = 'info') {
+      const timestamp = new Date().toLocaleTimeString();
+      const logEntry = document.createElement('div');
+      logEntry.className = `log-entry log-${type}`;
+      logEntry.textContent = `[${timestamp}] ${message}`;
+      consoleOutput.appendChild(logEntry);
+      consoleOutput.scrollTop = consoleOutput.scrollHeight;
+    }
+    
+    // 监听 iframe 加载
+    iframe.addEventListener('load', () => {
+      statusDiv.className = 'status success';
+      statusText.textContent = '✅ iframe 加载成功';
+      addLog('iframe 已加载', 'info');
+      
+      // 尝试检测 iframe 内容
+      setTimeout(() => {
+        try {
+          const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+          if (iframeDoc) {
+            addLog('可以访问 iframe 内容', 'info');
+          }
+        } catch (e) {
+          addLog(`跨域限制: ${e.message}`, 'warn');
+          addLog('这是正常的，表示 iframe 内容来自不同域名', 'info');
+        }
+      }, 1000);
+    });
+    
+    iframe.addEventListener('error', (e) => {
+      statusDiv.className = 'status error';
+      statusText.textContent = '❌ iframe 加载失败';
+      addLog(`加载错误: ${e.message}`, 'error');
+    });
+    
+    // 监听控制台错误
+    window.addEventListener('error', (e) => {
+      if (e.filename && e.filename.includes('eve-ss-empire-eve')) {
+        addLog(`iframe 内部错误: ${e.message}`, 'error');
+      }
+    });
+    
+    // 监听来自 iframe 的消息
+    window.addEventListener('message', (event) => {
+      if (event.origin === 'https://eve-ss-empire-eve.pages.dev') {
+        addLog(`收到消息: ${JSON.stringify(event.data)}`, 'info');
+      }
+    });
+    
+    // 超时检测
+    setTimeout(() => {
+      if (statusText.textContent === '正在初始化...') {
+        statusDiv.className = 'status error';
+        statusText.textContent = '⚠️ 加载超时（10秒）';
+        addLog('iframe 加载超时，可能存在以下问题:', 'error');
+        addLog('1. 网络连接问题', 'error');
+        addLog('2. CORS / X-Frame-Options 配置问题', 'error');
+        addLog('3. URL 参数不正确', 'error');
+        addLog('4. 3D 模型项目未正确部署', 'error');
+        
+        // 建议直接打开
+        addLog('建议：尝试在新标签页直接打开', 'warn');
+        const link = document.createElement('a');
+        link.href = iframeUrl;
+        link.target = '_blank';
+        link.textContent = '🔗 在新标签页打开测试';
+        link.style.color = '#44ffdd';
+        link.style.textDecoration = 'underline';
+        link.style.marginLeft = '10px';
+        statusText.appendChild(link);
+      }
+    }, 10000);
+    
+    addLog('测试页面已初始化', 'info');
+    addLog(`目标URL: ${iframeUrl}`, 'info');
+  </script>
+</body>
+</html>
