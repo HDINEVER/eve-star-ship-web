@@ -1,3 +1,5 @@
+import React from 'react';
+
 export type FactionId = 'amarr' | 'caldari' | 'gallente';
 
 export interface FactionData {

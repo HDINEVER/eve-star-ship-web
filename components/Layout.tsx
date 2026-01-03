@@ -4,7 +4,7 @@ import { Home, Download, Headset, RefreshCw, ChevronRight, Activity } from 'luci
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 
-const NavItem = ({ to, icon: Icon, children }: { to: string; icon: any; children: React.ReactNode }) => (
+const NavItem = ({ to, icon: Icon, children }: { to: string; icon: any; children?: React.ReactNode }) => (
   <NavLink
     to={to}
     className={({ isActive }) =>
