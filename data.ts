@@ -16,8 +16,8 @@ export const FACTIONS: Record<string, FactionData> = {
     glowColor: 'rgba(212, 175, 55, 0.8)',
     // Using placeholder for demo, replace with: '/assets/amarr_bg.webp'
     bgImage: 'https://picsum.photos/1920/1080?grayscale&blur=2', 
-    // 使用本地上传的艾玛帝国图标 (WebP 格式)
-    logo: '/mars-1.webp', 
+    // 使用透明背景的艾玛帝国图标
+    logo: '/Gemini_Generated_Image_k65g8yk65g8yk65g.png', 
     description: [
       "艾玛帝国是新伊甸最大的帝国。作为一个政教合一的君主制国家，它由女皇和皇家继承人议会统治。",
       "艾玛舰船以厚重的装甲和先进的激光武器闻名。它们重视持久战和压倒性的火力。",
@@ -43,7 +43,7 @@ export const FACTIONS: Record<string, FactionData> = {
         imageUrl: "/mars-6.webp"
       }
     ],
-    videoUrl: "https://pub-eve-ss-empire-eve.r2.dev/vedio-main-page/mars-video.mp4"
+    videoUrl: "https://pub-ef918f4135654b1caa2833736c639ae1.r2.dev/vedio-main-page/mars-video.mp4"
   },
   caldari: {
     id: 'caldari',
@@ -53,8 +53,8 @@ export const FACTIONS: Record<string, FactionData> = {
     color: '#44ffdd', // Cyan
     glowColor: 'rgba(68, 255, 221, 0.8)',
     bgImage: 'https://picsum.photos/1920/1080?grayscale&blur=2',
-    // 使用本地上传的加达里合众国图标 (WebP 格式)
-    logo: '/jupiter-1.webp', 
+    // 使用透明背景的加达里合众国图标
+    logo: '/Gemini_Generated_Image_gcpjuwgcpjuwgcpj.png', 
     description: [
       "加达里合众国是一个企业精英统治的国家。国家由几个巨型企业驱动，这些企业主宰着日常生活的方方面面。",
       "加达里舰船偏爱护盾和导弹发射器。它们从极远的距离交战，在敌人靠近之前将其消灭。",
@@ -80,7 +80,7 @@ export const FACTIONS: Record<string, FactionData> = {
         imageUrl: "/jupiter-6.webp"
       }
     ],
-    videoUrl: "https://pub-eve-ss-empire-eve.r2.dev/vedio-main-page/jupiter-video.mp4"
+    videoUrl: "https://pub-ef918f4135654b1caa2833736c639ae1.r2.dev/vedio-main-page/jupiter-video.mp4"
   },
   gallente: {
     id: 'gallente',
@@ -90,7 +90,8 @@ export const FACTIONS: Record<string, FactionData> = {
     color: '#a855f7', // Purple
     glowColor: 'rgba(168, 85, 247, 0.8)',
     bgImage: 'https://picsum.photos/1920/1080?grayscale&blur=2',
-    logo: 'https://images.evetech.net/corporations/1000120/logo?size=256', 
+    // 使用透明背景的盖伦特联邦图标
+    logo: '/Gemini_Generated_Image_vko8khvko8khvko8.png', 
     description: [
       "盖伦特联邦是新伊甸中唯一的真正民主国家。作为文化的大熔炉，他们最看重个人自由和艺术表达。",
       "盖伦特舰船依赖无人机和混合炮。它们是具有主动装甲修复能力的近距离搏斗者。",
@@ -116,6 +117,6 @@ export const FACTIONS: Record<string, FactionData> = {
         imageUrl: "/pluto-6.webp"
       }
     ],
-    videoUrl: "https://pub-eve-ss-empire-eve.r2.dev/vedio-main-page/pluto-video.mp4"
+    videoUrl: "https://pub-ef918f4135654b1caa2833736c639ae1.r2.dev/vedio-main-page/pluto-video.mp4"
   }
 };

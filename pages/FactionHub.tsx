@@ -15,7 +15,12 @@ export const FactionHub: React.FC = () => {
   const faction = factionId ? FACTIONS[factionId] : null;
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const shipImageRefs = useRef<(HTMLImageElement | null)[]>([]);
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+  const [currentShipIndex, setCurrentShipIndex] = useState(0);
+  const [prevShipIndex, setPrevShipIndex] = useState(0);
+  const shipRotationInterval = useRef<NodeJS.Timeout | null>(null);
+  const isTransitioning = useRef(false);
 
   // 控制视频卡片悬停时的视频播放
   useEffect(() => {
@@ -27,6 +32,83 @@ export const FactionHub: React.FC = () => {
       }
     }
   }, [hoveredCard]);
+
+  // 飞船切换动画
+  useEffect(() => {
+    if (!faction || currentShipIndex === prevShipIndex || isTransitioning.current) return;
+    
+    const prevImg = shipImageRefs.current[prevShipIndex];
+    const currentImg = shipImageRefs.current[currentShipIndex];
+    
+    if (prevImg && currentImg) {
+      isTransitioning.current = true;
+      
+      // 高级切换动画：旧图片缩小淡出+旋转，新图片从远处飞入
+      gsap.timeline({
+        onComplete: () => {
+          isTransitioning.current = false;
+          setPrevShipIndex(currentShipIndex);
+        }
+      })
+      // 旧图片动画：缩小、淡出、向左偏移并轻微旋转
+      .to(prevImg, {
+        scale: 0.6,
+        opacity: 0,
+        x: -100,
+        rotateY: -30,
+        filter: 'blur(8px)',
+        duration: 0.5,
+        ease: "power2.in",
+        force3D: true
+      }, 0)
+      // 新图片动画：从右侧远处飞入
+      .fromTo(currentImg, 
+        {
+          scale: 1.3,
+          opacity: 0,
+          x: 150,
+          rotateY: 20,
+          filter: 'blur(10px)'
+        },
+        {
+          scale: 1,
+          opacity: 1,
+          x: 0,
+          rotateY: 0,
+          filter: 'blur(0px)',
+          duration: 0.6,
+          ease: "power3.out",
+          force3D: true
+        }, 0.2);
+    }
+  }, [currentShipIndex, faction]);
+
+  // 控制舰队卡片悬停时的飞船轮播
+  useEffect(() => {
+    if (hoveredCard === 'ships' && faction && faction.ships.length > 0) {
+      // 开始轮播
+      shipRotationInterval.current = setInterval(() => {
+        setCurrentShipIndex((prevIndex) => {
+          setPrevShipIndex(prevIndex);
+          return (prevIndex + 1) % faction.ships.length;
+        });
+      }, 2500); // 每2.5秒切换一张飞船图片
+    } else {
+      // 停止轮播并重置
+      if (shipRotationInterval.current) {
+        clearInterval(shipRotationInterval.current);
+        shipRotationInterval.current = null;
+      }
+      setCurrentShipIndex(0);
+      setPrevShipIndex(0);
+    }
+
+    return () => {
+      if (shipRotationInterval.current) {
+        clearInterval(shipRotationInterval.current);
+      }
+    };
+  }, [hoveredCard, faction]);
 
   if (!faction) {
     return <Navigate to="/" />;
@@ -52,9 +134,10 @@ export const FactionHub: React.FC = () => {
         bgIcon: Crosshair,
         link: `/${faction.id}/ships`,
         desc: "Inspect capital ships, cruisers, and advanced weapon systems.",
-        // Use the first ship image as background
-        bgImage: `url(${faction.ships[0]?.imageUrl})`,
-        bgSize: 'contain'
+        // 不再使用背景图，改用独立的图片元素实现动画
+        bgImage: 'linear-gradient(to bottom right, rgba(0,0,0,0.9), rgba(0,0,0,0.3))',
+        bgSize: 'cover',
+        bgPosition: 'center'
     },
     {
         id: 'video',
@@ -159,15 +242,66 @@ export const FactionHub: React.FC = () => {
 
                     {/* Background Visuals */}
                     <div 
-                        className="absolute inset-0 bg-no-repeat bg-center transition-all duration-700 ease-out opacity-40 group-hover:opacity-60 group-hover:scale-110"
+                        className={`absolute inset-0 bg-no-repeat transition-all duration-700 ease-out ${
+                            card.id === 'ships' 
+                                ? 'bg-center opacity-50 group-hover:opacity-90' 
+                                : 'bg-center opacity-40 group-hover:opacity-60'
+                        } group-hover:scale-110`}
                         style={{ 
                             backgroundImage: card.bgImage,
                             backgroundSize: card.bgSize || 'cover',
+                            backgroundPosition: card.id === 'ships' ? 'center 40%' : 'center',
                         }}
                     >
                          {/* Scanline Effect Overlay */}
                         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
                     </div>
+                    
+                    {/* Fleet Card: Ship Image Carousel with advanced animation */}
+                    {card.id === 'ships' && (
+                        <div className="absolute inset-0 flex items-center justify-center overflow-hidden" style={{ perspective: '1000px' }}>
+                            {faction.ships.map((ship, index) => (
+                                <img
+                                    key={index}
+                                    ref={(el) => { shipImageRefs.current[index] = el; }}
+                                    src={ship.imageUrl}
+                                    alt={ship.name}
+                                    className="absolute w-[70%] h-[70%] object-contain transition-none"
+                                    style={{
+                                        opacity: index === currentShipIndex ? 1 : 0,
+                                        transformStyle: 'preserve-3d',
+                                        filter: isHovered ? `drop-shadow(0 0 30px ${faction.color}80)` : 'none'
+                                    }}
+                                />
+                            ))}
+                            {/* 悬停时的装饰性扫描线 */}
+                            {isHovered && (
+                                <>
+                                    <div 
+                                        className="absolute inset-0 pointer-events-none animate-scan-line"
+                                        style={{
+                                            background: `linear-gradient(to bottom, transparent 0%, ${faction.color}15 50%, transparent 100%)`,
+                                            backgroundSize: '100% 20px',
+                                            animation: 'scanLine 2s linear infinite'
+                                        }}
+                                    />
+                                    {/* 进度指示器 */}
+                                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                                        {faction.ships.map((_, index) => (
+                                            <div 
+                                                key={index}
+                                                className="w-8 h-1 transition-all duration-300"
+                                                style={{
+                                                    backgroundColor: index === currentShipIndex ? faction.color : 'rgba(255,255,255,0.2)',
+                                                    boxShadow: index === currentShipIndex ? `0 0 10px ${faction.color}` : 'none'
+                                                }}
+                                            />
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    )}
 
                     {/* Video Preview for COMMS card (PC only) */}
                     {card.id === 'video' && faction.videoUrl && (

@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FACTIONS } from '../data';
 import { GsapGlassCard } from '../components/SciFiUI';
@@ -9,101 +9,6 @@ import { ChevronRight, Zap } from 'lucide-react';
 // 配置高刷新率支持
 gsap.ticker.fps(144);
 gsap.config({ force3D: true });
-
-// 阵营飞船图片配置
-const FACTION_SHIP_IMAGES: Record<string, string[]> = {
-  amarr: ['/mars-4.webp', '/mars-5.webp', '/mars-6.webp'],
-  caldari: ['/jupiter-4.webp', '/jupiter-5.webp', '/jupiter-6.webp'],
-  gallente: ['/pluto-4.webp', '/pluto-5.webp', '/pluto-6.webp'],
-};
-
-// 图片轮播组件 - 广告牌式左右滚动
-const ImageCarousel: React.FC<{ images: string[]; isActive: boolean; color: string }> = ({ images, isActive, color }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const carouselRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!isActive) {
-      setCurrentIndex(0);
-      return;
-    }
-    
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % images.length);
-    }, 2500); // 每2.5秒切换一张
-
-    return () => clearInterval(interval);
-  }, [isActive, images.length]);
-
-  // 使用GSAP实现平滑的左右滑动动画
-  useEffect(() => {
-    if (carouselRef.current && isActive) {
-      gsap.to(carouselRef.current, {
-        x: `-${currentIndex * 100}%`,
-        duration: 0.8,
-        ease: "power2.inOut",
-        force3D: true
-      });
-    }
-  }, [currentIndex, isActive]);
-
-  return (
-    <div className={`
-      absolute inset-0 overflow-hidden transition-opacity duration-500
-      ${isActive ? 'opacity-100' : 'opacity-0'}
-    `}>
-      {/* 图片滑动容器 */}
-      <div 
-        ref={carouselRef}
-        className="flex h-full"
-        style={{ width: `${images.length * 100}%` }}
-      >
-        {images.map((img, idx) => (
-          <div
-            key={img}
-            className="relative h-full flex-shrink-0"
-            style={{ width: `${100 / images.length}%` }}
-          >
-            <img 
-              src={img} 
-              alt={`Ship ${idx + 1}`}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        ))}
-      </div>
-      
-      {/* 渐变遮罩确保文字可读 */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/30 pointer-events-none" />
-      {/* 左右渐变边缘 */}
-      <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-black/50 to-transparent pointer-events-none" />
-      <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-black/50 to-transparent pointer-events-none" />
-      {/* 顶部光晕 */}
-      <div 
-        className="absolute top-0 left-0 right-0 h-32 opacity-50 pointer-events-none"
-        style={{ background: `linear-gradient(to bottom, ${color}20, transparent)` }}
-      />
-      {/* 扫描线效果 */}
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay pointer-events-none" />
-      {/* 图片指示器 - 广告牌风格 */}
-      <div className="absolute bottom-20 sm:bottom-24 left-4 flex gap-2">
-        {images.map((_, idx) => (
-          <div 
-            key={idx}
-            className={`h-1 rounded-full transition-all duration-500 ${idx === currentIndex ? 'w-8 sm:w-10' : 'w-2'}`}
-            style={{ backgroundColor: idx === currentIndex ? color : 'rgba(255,255,255,0.3)' }}
-          />
-        ))}
-      </div>
-      {/* 当前图片编号 */}
-      <div className="absolute bottom-20 sm:bottom-24 right-4 font-orbitron text-xs text-white/50">
-        <span style={{ color }}>{String(currentIndex + 1).padStart(2, '0')}</span>
-        <span className="mx-1">/</span>
-        <span>{String(images.length).padStart(2, '0')}</span>
-      </div>
-    </div>
-  );
-};
 
 export const Home: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -159,20 +64,98 @@ export const Home: React.FC = () => {
                 borderColor={faction.color} 
                 glowColor={faction.glowColor}
                 delay={index * 0.15 + 0.3}
-                className="h-[280px] sm:h-[350px] lg:h-[550px] flex flex-col relative group transition-all duration-500"
+                className="h-[280px] sm:h-[350px] lg:h-[550px] flex flex-col relative group transition-all duration-500 overflow-hidden"
               >
                 
-                {/* 飞船图片轮播背景 */}
-                <ImageCarousel 
-                  images={FACTION_SHIP_IMAGES[faction.id] || []}
-                  isActive={hoveredFaction === faction.id}
-                  color={faction.color}
+                {/* 阵营标志 - 非线性移动到右边，只露出2/3 */}
+                <div 
+                  className={`
+                    absolute pointer-events-none z-0
+                    w-40 sm:w-60 lg:w-80 h-40 sm:h-60 lg:h-80
+                    transition-all duration-700
+                    ${hoveredFaction === faction.id 
+                      ? 'ease-[cubic-bezier(0.34,1.56,0.64,1)]' 
+                      : 'ease-[cubic-bezier(0.25,0.1,0.25,1)]'
+                    }
+                  `}
+                  style={{
+                    // 默认在右上角，根据不同阵营图标形状微调位置
+                    // 艾玛(index=0)图标偏上，加达里(index=1)和盖伦特(index=2)需要往上移
+                    top: hoveredFaction === faction.id 
+                      ? '50%' 
+                      : index === 0 ? '-2rem' : '-4rem',
+                    right: hoveredFaction === faction.id ? '-20%' : '-2rem',
+                    transform: hoveredFaction === faction.id 
+                      ? 'translateY(-50%) scale(1.3)' 
+                      : 'translateY(0) scale(1)',
+                  }}
+                >
+                  {/* 图标本身 */}
+                  <img 
+                    src={faction.logo} 
+                    alt={faction.name}
+                    className={`
+                      w-full h-full object-contain transition-all duration-700
+                      ${hoveredFaction === faction.id 
+                        ? 'opacity-80 grayscale-0' 
+                        : 'opacity-20 grayscale'
+                      }
+                    `}
+                    style={{ 
+                      filter: hoveredFaction === faction.id 
+                        ? `drop-shadow(0 0 80px ${faction.color}) drop-shadow(0 0 160px ${faction.color}80)` 
+                        : 'none'
+                    }}
+                  />
+                </div>
+
+                {/* 阵营名称文字 - 悬停时变大成为白色标题的阴影背景 */}
+                <div 
+                  className={`
+                    absolute pointer-events-none font-orbitron font-black uppercase
+                    transition-all duration-700
+                    ${hoveredFaction === faction.id 
+                      ? 'ease-[cubic-bezier(0.34,1.56,0.64,1)]' 
+                      : 'ease-[cubic-bezier(0.25,0.1,0.25,1)]'
+                    }
+                  `}
+                  style={{
+                    // 默认跟随图标在右上角，悬停时移动到左下角与白字对齐
+                    left: hoveredFaction === faction.id ? '0.75rem' : 'auto',
+                    right: hoveredFaction === faction.id ? 'auto' : '1rem',
+                    bottom: hoveredFaction === faction.id ? '5.5rem' : 'auto',
+                    top: hoveredFaction === faction.id ? 'auto' : '6rem',
+                    fontSize: hoveredFaction === faction.id ? 'clamp(3rem, 8vw, 6rem)' : 'clamp(1rem, 3vw, 1.5rem)',
+                    opacity: hoveredFaction === faction.id ? 0.15 : 0.4,
+                    color: faction.color,
+                    letterSpacing: hoveredFaction === faction.id ? '0.05em' : '0.1em',
+                    transform: hoveredFaction === faction.id ? 'translateX(0)' : 'translateX(0)',
+                    zIndex: 0,
+                    textShadow: `0 0 40px ${faction.color}40`,
+                  }}
+                >
+                  {faction.shortName}
+                </div>
+
+                {/* 强烈的辉光效果 - 从右侧扩散 */}
+                <div 
+                  className={`absolute inset-0 pointer-events-none transition-all duration-700 ${hoveredFaction === faction.id ? 'opacity-100' : 'opacity-0'}`}
+                  style={{ 
+                    background: `radial-gradient(circle at 100% 50%, ${faction.color}50 0%, ${faction.color}30 20%, ${faction.color}15 35%, transparent 55%)` 
+                  }}
                 />
 
-                {/* 1. Background Large Logo (Abstract & Decorative) */}
-                <div className={`absolute -right-8 sm:-right-16 -top-8 sm:-top-16 w-40 sm:w-60 lg:w-80 h-40 sm:h-60 lg:h-80 transition-all duration-700 ease-in-out pointer-events-none grayscale group-hover:grayscale-0 ${hoveredFaction === faction.id ? 'opacity-30 rotate-12' : 'opacity-10'}`}>
-                    <img src={faction.logo} alt="" className="w-full h-full object-contain" />
-                </div>
+                {/* 多层辉光增强效果 - 右侧边缘光 */}
+                <div 
+                  className={`absolute inset-0 pointer-events-none transition-all duration-700 ${hoveredFaction === faction.id ? 'opacity-100' : 'opacity-0'}`}
+                  style={{ 
+                    background: `linear-gradient(to left, ${faction.color}40 0%, transparent 40%)`,
+                    mixBlendMode: 'screen'
+                  }}
+                />
+
+                {/* 扫描线效果 */}
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5 mix-blend-overlay pointer-events-none" />
 
                 {/* 2. Content Container - Pushed to Bottom */}
                 <div className="mt-auto relative z-10 p-2 flex flex-col h-full justify-end">

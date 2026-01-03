@@ -83,6 +83,12 @@
       .animate-float-3 { animation: float-blur-3 22s ease-in-out infinite; }
       .animate-glow { animation: glow-pulse 4s ease-in-out infinite; }
       
+      /* 飞船轮播扫描线动画 */
+      @keyframes scanLine {
+        0% { transform: translateY(-100%); }
+        100% { transform: translateY(100%); }
+      }
+      
       /* 动画性能优化 */
       .will-change-transform {
         will-change: transform;
