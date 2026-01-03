@@ -43,7 +43,7 @@ export const FACTIONS: Record<string, FactionData> = {
         imageUrl: "/mars-6.webp"
       }
     ],
-    videoUrl: "/mars-video.mp4"
+    videoUrl: "https://pub-eve-ss-empire-eve.r2.dev/vedio-main-page/mars-video.mp4"
   },
   caldari: {
     id: 'caldari',
@@ -80,7 +80,7 @@ export const FACTIONS: Record<string, FactionData> = {
         imageUrl: "/jupiter-6.webp"
       }
     ],
-    videoUrl: "/jupiter-video.mp4"
+    videoUrl: "https://pub-eve-ss-empire-eve.r2.dev/vedio-main-page/jupiter-video.mp4"
   },
   gallente: {
     id: 'gallente',
@@ -98,24 +98,24 @@ export const FACTIONS: Record<string, FactionData> = {
     ],
     ships: [
       {
-        name: "厄瑞玻斯级 (Erebus)",
-        class: "泰坦 (Titan)",
-        description: "指挥成群战机的黑暗巨像。",
+        name: "特里斯坦护卫舰 (Tristan, Frigate)",
+        class: "护卫舰 (Frigate)",
+        description: "以无人机战术和灵活机动著称的盖伦特经典护卫舰。",
         imageUrl: "/pluto-4.webp"
       },
       {
-        name: "万王宝座级 (Megathron)",
-        class: "战列舰 (Battleship)",
-        description: "星团中最令人畏惧的疾速炮平台之一。",
+        name: "塔利亚后勤护卫舰 (Thalia, Logistics Frigate)",
+        class: "后勤护卫舰 (Logistics Frigate)",
+        description: "专为小规模舰队提供能量和护盾支援的后勤舰船。",
         imageUrl: "/pluto-5.webp"
       },
       {
-        name: "狂怒者级 (Vexor)",
-        class: "巡洋舰 (Cruiser)",
-        description: "适应任何战斗情况的多功能无人机航母。",
+        name: "阿特龙级截击舰 (Atron, Interceptor)",
+        class: "截击舰 (Interceptor)",
+        description: "高速灵活的截击舰，擅长追击与骚扰敌方目标。",
         imageUrl: "/pluto-6.webp"
       }
     ],
-    videoUrl: "/pluto-video.mp4"
+    videoUrl: "https://pub-eve-ss-empire-eve.r2.dev/vedio-main-page/pluto-video.mp4"
   }
 };
