@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { Home, Download, Headset, RefreshCw, ChevronRight, Activity } from 'lucide-react';
+import { Home, Download, Headset, Pin, ChevronRight, Activity } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 
@@ -45,6 +45,8 @@ export const Layout: React.FC = () => {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isNavPinned, setIsNavPinned] = useState(true);
+  const [isNavHovered, setIsNavHovered] = useState(false);
 
   // Handle Scroll Logic & Background Parallax - 优化版本
   useEffect(() => {
@@ -67,6 +69,7 @@ export const Layout: React.FC = () => {
           setIsScrolled(currentScrollY > 20);
 
           // Determine Direction (Threshold of 10px to avoid jitter)
+          // 只在未固定状态下响应滚动隐藏
           if (Math.abs(currentScrollY - lastScrollY) > 10) {
             if (currentScrollY > lastScrollY && currentScrollY > 100) {
               setIsNavVisible(false);
@@ -95,9 +98,11 @@ export const Layout: React.FC = () => {
   // Initial Animation & Breathing Effect for Background - 优化版本
   useGSAP(() => {
     // Nav Animation - 使用 force3D 启用 GPU 加速
+    // 固定状态或悬停时显示，否则根据滚动状态显示
+    const shouldShow = isNavPinned || isNavHovered || isNavVisible;
     gsap.to(navRef.current, {
-      y: isNavVisible ? 0 : -100,
-      opacity: isNavVisible ? 1 : 0,
+      y: shouldShow ? 0 : -100,
+      opacity: shouldShow ? 1 : 0,
       duration: 0.4,
       ease: "power3.out",
       force3D: true,
@@ -154,10 +159,10 @@ export const Layout: React.FC = () => {
             force3D: true
         });
     }
-  }, [isNavVisible]);
+  }, [isNavVisible, isNavPinned, isNavHovered]);
 
-  const handleReload = () => {
-    window.location.reload();
+  const togglePin = () => {
+    setIsNavPinned(!isNavPinned);
   };
 
   return (
@@ -258,7 +263,11 @@ export const Layout: React.FC = () => {
          --- FLOATING HUD NAVIGATION --- 
          Centered, Floating, Auto-Hiding 
       */}
-      <div className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-6 pointer-events-none">
+      <div 
+        className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-6 pointer-events-none"
+        onMouseEnter={() => setIsNavHovered(true)}
+        onMouseLeave={() => setIsNavHovered(false)}
+      >
         <nav 
             ref={navRef}
             className={`
@@ -290,14 +299,18 @@ export const Layout: React.FC = () => {
                 </a>
             </div>
 
-            {/* Right Action Button */}
+            {/* Right Action Button - 固定/取消固定导航栏 */}
             <div className="ml-2 pl-2 border-l border-white/10">
                 <button 
-                    onClick={handleReload} 
-                    className="flex items-center justify-center w-8 h-8 rounded-full bg-white/5 hover:bg-red-500/20 hover:text-red-400 text-gray-400 transition-all duration-300"
-                    title="System Reset"
+                    onClick={togglePin} 
+                    className={`flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 ${
+                        isNavPinned 
+                            ? 'bg-cyan-500/20 text-cyan-400' 
+                            : 'bg-white/5 hover:bg-cyan-500/20 text-gray-400 hover:text-cyan-400'
+                    }`}
+                    title={isNavPinned ? "取消固定导航栏" : "固定导航栏"}
                 >
-                    <RefreshCw size={14} />
+                    <Pin size={14} className={`transition-transform duration-300 ${isNavPinned ? 'rotate-45' : ''}`} />
                 </button>
             </div>
         </nav>
