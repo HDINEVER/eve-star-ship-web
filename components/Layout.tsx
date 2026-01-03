@@ -1,8 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Home, Download, Headset, RefreshCw, ChevronRight, Activity } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+
+// 配置 GSAP 高刷新率支持
+gsap.ticker.fps(144);
+gsap.ticker.lagSmoothing(0);
+gsap.config({ force3D: true });
 
 const NavItem = ({ to, icon: Icon, children }: { to: string; icon: any; children?: React.ReactNode }) => (
   <NavLink
@@ -38,64 +43,73 @@ export const Layout: React.FC = () => {
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  // Handle Scroll Logic & Background Parallax
+  // Handle Scroll Logic & Background Parallax - 优化版本
   useEffect(() => {
+    let ticking = false;
+    let lastScrollY = 0;
+    
+    // 使用 quickTo 预先创建动画实例，大幅提升性能
+    const quickY = bgRef.current ? gsap.quickTo(bgRef.current, "y", { duration: 0.3, ease: "power1.out" }) : null;
+    const quickOpacity = bgRef.current ? gsap.quickTo(bgRef.current, "opacity", { duration: 0.3, ease: "power1.out" }) : null;
+    
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const maxScroll = document.body.scrollHeight - window.innerHeight;
-      const scrollProgress = Math.min(currentScrollY / (maxScroll || 1), 1);
-      
-      // Determine if at top
-      setIsScrolled(currentScrollY > 20);
+      if (!ticking) {
+        // 使用 requestAnimationFrame 确保与显示器同步
+        requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          const maxScroll = document.body.scrollHeight - window.innerHeight;
+          const scrollProgress = Math.min(currentScrollY / (maxScroll || 1), 1);
+          
+          // Determine if at top
+          setIsScrolled(currentScrollY > 20);
 
-      // Determine Direction (Threshold of 10px to avoid jitter)
-      if (Math.abs(currentScrollY - lastScrollY) > 10) {
-        if (currentScrollY > lastScrollY && currentScrollY > 100) {
-          // Scrolling Down & not at very top
-          setIsNavVisible(false);
-        } else {
-          // Scrolling Up
-          setIsNavVisible(true);
-        }
-        setLastScrollY(currentScrollY);
-      }
+          // Determine Direction (Threshold of 10px to avoid jitter)
+          if (Math.abs(currentScrollY - lastScrollY) > 10) {
+            if (currentScrollY > lastScrollY && currentScrollY > 100) {
+              setIsNavVisible(false);
+            } else {
+              setIsNavVisible(true);
+            }
+            lastScrollY = currentScrollY;
+          }
 
-      // Background "若隐若现" (Appearing faintly logic)
-      if (bgRef.current) {
-        gsap.to(bgRef.current, {
-            // Parallax Y movement (slow)
-            y: currentScrollY * 0.1,
-            // Opacity increases slightly as you scroll down (reveal), but stays subtle
-            // Base 0.15 + up to 0.25 based on scroll = max 0.4
-            opacity: 0.15 + (scrollProgress * 0.25),
-            duration: 0.5,
-            ease: "power1.out"
+          // Background "若隐若现" - 使用 quickTo 优化性能
+          if (quickY && quickOpacity) {
+            quickY(currentScrollY * 0.1);
+            quickOpacity(0.15 + (scrollProgress * 0.25));
+          }
+          
+          ticking = false;
         });
+        ticking = true;
       }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
+  }, []);
 
-  // Initial Animation & Breathing Effect for Background
+  // Initial Animation & Breathing Effect for Background - 优化版本
   useGSAP(() => {
-    // Nav Animation
+    // Nav Animation - 使用 force3D 启用 GPU 加速
     gsap.to(navRef.current, {
       y: isNavVisible ? 0 : -100,
       opacity: isNavVisible ? 1 : 0,
-      duration: 0.5,
-      ease: "power3.out"
+      duration: 0.4,
+      ease: "power3.out",
+      force3D: true,
+      willChange: "transform, opacity"
     });
 
-    // Background Breathing (Ghostly effect)
+    // Background Breathing (Ghostly effect) - 优化模糊动画
     if (bgRef.current) {
         gsap.to(bgRef.current, {
-            filter: 'blur(5px)', // Breathe between 3px and 5px blur
+            filter: 'blur(5px)',
             duration: 4,
             repeat: -1,
             yoyo: true,
-            ease: "sine.inOut"
+            ease: "sine.inOut",
+            force3D: true
         });
     }
   }, [isNavVisible]);
@@ -113,13 +127,15 @@ export const Layout: React.FC = () => {
         {/* Note: Using a high-res EVE Online Citadel artwork URL. Replace with local path if needed. */}
         <div 
             ref={bgRef}
-            className="absolute inset-0 bg-cover bg-center transition-all will-change-transform"
+            className="absolute inset-0 bg-cover bg-center will-change-transform gpu-accelerated"
             style={{ 
                 // Using a reliable EVE Citadel wallpaper URL
                 backgroundImage: `url('https://images.contentstack.io/v3/assets/blt71c4c37f37d37704/blt6d5257e844502012/5ea74e7c706d991b1d7d07c0/EVE_Online_Citadel_KeyArt_1920x1080.jpg')`,
                 opacity: 0.15, // Start very faint
                 filter: 'blur(3px)', // Initial Partial Blur
-                transform: 'scale(1.1)' // Slight scale to allow for parallax movement without edges showing
+                transform: 'scale(1.1) translate3d(0, 0, 0)', // GPU 加速 + 允许视差移动
+                backfaceVisibility: 'hidden',
+                perspective: 1000
             }}
         />
         

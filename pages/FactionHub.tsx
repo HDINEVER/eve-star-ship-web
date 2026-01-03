@@ -6,6 +6,10 @@ import { FACTIONS } from '../data';
 import { SectionHeader } from '../components/SciFiUI';
 import { BookOpen, Anchor, MonitorPlay, ChevronRight, Binary, Crosshair, Radio } from 'lucide-react';
 
+// 配置高刷新率支持
+gsap.ticker.fps(144);
+gsap.config({ force3D: true });
+
 export const FactionHub: React.FC = () => {
   const { factionId } = useParams<{ factionId: string }>();
   const faction = factionId ? FACTIONS[factionId] : null;
@@ -53,23 +57,26 @@ export const FactionHub: React.FC = () => {
   ];
 
   useGSAP(() => {
-    // Intro Animation for the cards sliding in
+    // Intro Animation for the cards sliding in - 优化版本
     gsap.from(".accordion-card", {
         y: 100,
         opacity: 0,
-        duration: 0.8,
-        stagger: 0.1,
-        ease: "power3.out"
+        duration: 0.7,
+        stagger: 0.08,
+        ease: "power3.out",
+        force3D: true,
+        willChange: "transform, opacity"
     });
     
-    // Background Logo subtle float
+    // Background Logo subtle float - 使用 GPU 加速
     gsap.to(".bg-logo-watermark", {
         y: -20,
         rotation: 5,
         duration: 10,
         repeat: -1,
         yoyo: true,
-        ease: "sine.inOut"
+        ease: "sine.inOut",
+        force3D: true
     });
   }, { scope: containerRef });
 

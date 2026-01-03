@@ -6,19 +6,25 @@ import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ChevronRight, Zap } from 'lucide-react';
 
+// 配置高刷新率支持
+gsap.ticker.fps(144);
+gsap.config({ force3D: true });
+
 export const Home: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
 
   useGSAP(() => {
-    // Title Animation
+    // Title Animation - 优化版本
     gsap.fromTo(titleRef.current,
         { opacity: 0, y: -50 },
         { 
             opacity: 1, 
             y: 0, 
-            duration: 1.2, 
-            ease: "power3.out" 
+            duration: 1, 
+            ease: "power3.out",
+            force3D: true,
+            willChange: "transform, opacity"
         }
     );
   }, { scope: containerRef });

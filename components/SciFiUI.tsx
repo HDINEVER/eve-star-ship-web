@@ -14,6 +14,18 @@ interface CardProps {
 // Register GSAP plugins
 gsap.registerPlugin(useGSAP);
 
+// 配置 GSAP ticker 支持高刷新率 (最高 144Hz)
+gsap.ticker.fps(144);
+// 使用 requestAnimationFrame 确保与显示器刷新率同步
+gsap.ticker.lagSmoothing(0);
+// 启用强制渲染优化
+gsap.config({
+  force3D: true, // 强制使用 3D transforms 进行 GPU 加速
+  nullTargetWarn: false,
+  autoSleep: 60,
+  units: { left: '%', top: '%', rotation: 'rad' }
+});
+
 export const GsapGlassCard: React.FC<CardProps> = ({ 
   children, 
   className = '', 
@@ -27,48 +39,66 @@ export const GsapGlassCard: React.FC<CardProps> = ({
   const glowRef = useRef<HTMLDivElement>(null);
 
   useGSAP(() => {
-    // Entrance Animation
+    // Entrance Animation - 使用 transform 进行 GPU 加速
     gsap.fromTo(cardRef.current,
       { y: 50, opacity: 0, scale: 0.95 },
-      { y: 0, opacity: 1, scale: 1, duration: 0.8, delay: delay, ease: "power3.out" }
+      { 
+        y: 0, 
+        opacity: 1, 
+        scale: 1, 
+        duration: 0.8, 
+        delay: delay, 
+        ease: "power3.out",
+        force3D: true, // 强制 GPU 加速
+        willChange: "transform, opacity" // 提示浏览器优化
+      }
     );
 
-    // Hover Effects
+    // Hover Effects - 优化事件监听
     if (hoverEffect && cardRef.current) {
         const card = cardRef.current;
         const glow = glowRef.current;
         
+        // 使用 GSAP 快速设置器优化性能
+        const quickY = gsap.quickTo(card, "y", { duration: 0.3, ease: "power2.out" });
+        const quickScale = gsap.quickTo(card, "scale", { duration: 0.3, ease: "power2.out" });
+        const quickGlowOpacity = gsap.quickTo(glow, "opacity", { duration: 0.3, ease: "power2.out" });
+        
         card.addEventListener('mouseenter', () => {
-            // Card Lift & Scale
+            // Card Lift & Scale - 使用 quickTo 提升性能
+            quickY(-10);
+            quickScale(1.02);
+            
             gsap.to(card, { 
-                y: -10, 
-                scale: 1.02,
                 borderColor: borderColor,
                 boxShadow: `0 20px 50px -20px ${glowColor}`,
-                duration: 0.4, 
-                ease: "power2.out" 
+                duration: 0.3, 
+                ease: "power2.out",
+                force3D: true
             });
             
             // Fast Scanline
             gsap.fromTo(scanlineRef.current, 
                 { top: '-20%', opacity: 0 },
-                { top: '120%', opacity: 0.8, duration: 0.6, ease: "power1.in" }
+                { top: '120%', opacity: 0.8, duration: 0.5, ease: "power1.in", force3D: true }
             );
 
             // Background Glow Intensity
-            gsap.to(glow, { opacity: 0.4, duration: 0.5 });
+            quickGlowOpacity(0.4);
         });
 
         card.addEventListener('mouseleave', () => {
+            quickY(0);
+            quickScale(1);
+            quickGlowOpacity(0);
+            
             gsap.to(card, { 
-                y: 0, 
-                scale: 1, 
                 borderColor: 'rgba(255,255,255,0.1)',
                 boxShadow: 'none',
-                duration: 0.5, 
-                ease: "power2.out" 
+                duration: 0.4, 
+                ease: "power2.out",
+                force3D: true
             });
-            gsap.to(glow, { opacity: 0, duration: 0.5 });
         });
     }
   }, { scope: cardRef });
@@ -76,10 +106,11 @@ export const GsapGlassCard: React.FC<CardProps> = ({
   return (
     <div 
       ref={cardRef}
-      className={`relative group bg-black/40 backdrop-blur-sm border border-white/10 overflow-hidden ${className}`}
+      className={`relative group bg-black/40 backdrop-blur-sm border border-white/10 overflow-hidden will-change-transform gpu-accelerated ${className}`}
       style={{
         // More aggressive Cyberpunk angled cut
-        clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%)'
+        clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%)',
+        transform: 'translate3d(0, 0, 0)' // 启用 GPU 加速层
       }}
     >
       {/* Dynamic Glow Background */}

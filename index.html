@@ -45,6 +45,13 @@
       }
     </script>
     <style>
+      /* 高刷新率优化 - 支持最高144Hz */
+      * {
+        /* 启用 GPU 加速 */
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+      }
+      
       body {
         margin: 0;
         background-color: #050505; /* Darker background */
@@ -52,6 +59,41 @@
         color: white;
         overflow-x: hidden;
       }
+      
+      /* 动画性能优化 */
+      .will-change-transform {
+        will-change: transform;
+      }
+      .will-change-opacity {
+        will-change: opacity;
+      }
+      .will-change-auto {
+        will-change: auto;
+      }
+      
+      /* GPU 加速层 */
+      .gpu-accelerated {
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+      }
+      
+      /* 高性能动画 - 仅使用 transform 和 opacity */
+      .smooth-animation {
+        transform: translate3d(0, 0, 0);
+        -webkit-font-smoothing: antialiased;
+      }
+      
+      /* 禁用不必要的合成层 */
+      .contain-paint {
+        contain: paint;
+      }
+      .contain-layout {
+        contain: layout;
+      }
+      .contain-strict {
+        contain: strict;
+      }
+      
       /* Custom Scrollbar */
       ::-webkit-scrollbar {
         width: 8px;
@@ -72,6 +114,11 @@
       .transform-style-3d {
         transform-style: preserve-3d;
       }
+      
+      /* 144Hz 优化的过渡 */
+      .transition-144hz {
+        transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+      }
     </style>
   <script type="importmap">
 {
@@ -89,5 +136,6 @@
 </head>
   <body>
     <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>
