@@ -54,11 +54,34 @@
       
       body {
         margin: 0;
-        background-color: #050505; /* Darker background */
-        background-image: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #000000 100%);
+        background-color: #030308;
+        background-image: radial-gradient(ellipse at 50% 0%, #0a0a1a 0%, #030308 50%, #000000 100%);
         color: white;
         overflow-x: hidden;
       }
+      
+      /* 浮动模糊动画 */
+      @keyframes float-blur-1 {
+        0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+        50% { transform: translate3d(100px, -50px, 0) scale(1.2); }
+      }
+      @keyframes float-blur-2 {
+        0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+        50% { transform: translate3d(-80px, 60px, 0) scale(0.9); }
+      }
+      @keyframes float-blur-3 {
+        0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+        50% { transform: translate3d(50px, 80px, 0) scale(1.1); }
+      }
+      @keyframes glow-pulse {
+        0%, 100% { opacity: 0.3; }
+        50% { opacity: 0.6; }
+      }
+      
+      .animate-float-1 { animation: float-blur-1 15s ease-in-out infinite; }
+      .animate-float-2 { animation: float-blur-2 18s ease-in-out infinite; }
+      .animate-float-3 { animation: float-blur-3 22s ease-in-out infinite; }
+      .animate-glow { animation: glow-pulse 4s ease-in-out infinite; }
       
       /* 动画性能优化 */
       .will-change-transform {
@@ -120,19 +143,7 @@
         transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
       }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
-    "react-router-dom": "https://esm.sh/react-router-dom@^7.11.0",
-    "gsap": "https://esm.sh/gsap@3.12.5",
-    "@gsap/react": "https://esm.sh/@gsap/react@2.1.0"
-  }
-}
-</script>
+    <!-- Importmap removed - using Vite bundled dependencies instead -->
 </head>
   <body>
     <div id="root"></div>

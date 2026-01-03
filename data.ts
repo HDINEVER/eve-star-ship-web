@@ -16,8 +16,8 @@ export const FACTIONS: Record<string, FactionData> = {
     glowColor: 'rgba(212, 175, 55, 0.8)',
     // Using placeholder for demo, replace with: '/assets/amarr_bg.webp'
     bgImage: 'https://picsum.photos/1920/1080?grayscale&blur=2', 
-    // Using placeholder for demo, replace with: '/assets/amarr_logo.webp'
-    logo: 'https://images.evetech.net/corporations/1000035/logo?size=256', 
+    // 使用本地上传的艾玛帝国图标 (WebP 格式)
+    logo: '/mars-1.webp', 
     description: [
       "艾玛帝国是新伊甸最大的帝国。作为一个政教合一的君主制国家，它由女皇和皇家继承人议会统治。",
       "艾玛舰船以厚重的装甲和先进的激光武器闻名。它们重视持久战和压倒性的火力。",
@@ -25,25 +25,25 @@ export const FACTIONS: Record<string, FactionData> = {
     ],
     ships: [
       {
-        name: "神使级 (Avatar)",
+        name: "帝国号 (Imperial Issue)",
+        class: "战列舰 (Battleship)",
+        description: "艾玛帝国的象征性旗舰，仅授予最忠诚的皇家成员。",
+        imageUrl: "/mars-4.webp"
+      },
+      {
+        name: "先锋者级 (Paladin, Strategic Cruiser)",
+        class: "战略巡洋舰 (Strategic Cruiser)",
+        description: "拥有强大激光火力与自适应防御的战略级战舰。",
+        imageUrl: "/mars-5.webp"
+      },
+      {
+        name: "神使级泰坦 (Avatar Titan)",
         class: "泰坦 (Titan)",
         description: "黄金舰队的骄傲，能够执行末日审判。",
-        imageUrl: "https://images.evetech.net/types/11567/render?size=512"
-      },
-      {
-        name: "地狱天使级 (Abaddon)",
-        class: "战列舰 (Battleship)",
-        description: "帝国力量的象征，旨在向星系投射力量。",
-        imageUrl: "https://images.evetech.net/types/24692/render?size=512"
-      },
-      {
-        name: "奥格诺级 (Omen)",
-        class: "巡洋舰 (Cruiser)",
-        description: "配备先进激光炮台的快速攻击巡洋舰。",
-        imageUrl: "https://images.evetech.net/types/626/render?size=512"
+        imageUrl: "/mars-6.webp"
       }
     ],
-    videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4"
+    videoUrl: "/mars-video.mp4"
   },
   caldari: {
     id: 'caldari',
@@ -53,7 +53,8 @@ export const FACTIONS: Record<string, FactionData> = {
     color: '#44ffdd', // Cyan
     glowColor: 'rgba(68, 255, 221, 0.8)',
     bgImage: 'https://picsum.photos/1920/1080?grayscale&blur=2',
-    logo: 'https://images.evetech.net/corporations/1000037/logo?size=256', 
+    // 使用本地上传的加达里合众国图标 (WebP 格式)
+    logo: '/jupiter-1.webp', 
     description: [
       "加达里合众国是一个企业精英统治的国家。国家由几个巨型企业驱动，这些企业主宰着日常生活的方方面面。",
       "加达里舰船偏爱护盾和导弹发射器。它们从极远的距离交战，在敌人靠近之前将其消灭。",
@@ -61,25 +62,25 @@ export const FACTIONS: Record<string, FactionData> = {
     ],
     ships: [
       {
-        name: "勒维亚坦级 (Leviathan)",
-        class: "泰坦 (Titan)",
-        description: "导弹炮台和护盾发生器的浮动堡垒。",
-        imageUrl: "https://images.evetech.net/types/3764/render?size=512"
-      },
-      {
-        name: "乌鸦级 (Raven)",
-        class: "战列舰 (Battleship)",
-        description: "加达里海军的主力，从远处倾泻巡航导弹。",
-        imageUrl: "https://images.evetech.net/types/638/render?size=512"
-      },
-      {
-        name: "幼龙级 (Drake)",
+        name: "娜迦级 (Naga, Battlecruiser)",
         class: "战列巡洋舰 (Battlecruiser)",
-        description: "以其坚不可摧的护盾和持续火力而闻名。",
-        imageUrl: "https://images.evetech.net/types/24698/render?size=512"
+        description: "远程狙击与高爆导弹兼备的加达里主力舰船。",
+        imageUrl: "/jupiter-4.webp"
+      },
+      {
+        name: "希尔博拉斯 (Cerberus, Heavy Assault Cruiser)",
+        class: "重型突击巡洋舰 (Heavy Assault Cruiser)",
+        description: "以强大导弹火力和机动性著称的重型突击巡洋舰。",
+        imageUrl: "/jupiter-5.webp"
+      },
+      {
+        name: "渡鸦级 (Corax, Destroyer)",
+        class: "驱逐舰 (Destroyer)",
+        description: "新手与精英都青睐的多用途导弹驱逐舰。",
+        imageUrl: "/jupiter-6.webp"
       }
     ],
-    videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4"
+    videoUrl: "/jupiter-video.mp4"
   },
   gallente: {
     id: 'gallente',
@@ -100,21 +101,21 @@ export const FACTIONS: Record<string, FactionData> = {
         name: "厄瑞玻斯级 (Erebus)",
         class: "泰坦 (Titan)",
         description: "指挥成群战机的黑暗巨像。",
-        imageUrl: "https://images.evetech.net/types/671/render?size=512"
+        imageUrl: "/pluto-4.webp"
       },
       {
         name: "万王宝座级 (Megathron)",
         class: "战列舰 (Battleship)",
         description: "星团中最令人畏惧的疾速炮平台之一。",
-        imageUrl: "https://images.evetech.net/types/641/render?size=512"
+        imageUrl: "/pluto-5.webp"
       },
       {
         name: "狂怒者级 (Vexor)",
         class: "巡洋舰 (Cruiser)",
         description: "适应任何战斗情况的多功能无人机航母。",
-        imageUrl: "https://images.evetech.net/types/626/render?size=512"
+        imageUrl: "/pluto-6.webp"
       }
     ],
-    videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4"
+    videoUrl: "/pluto-video.mp4"
   }
 };

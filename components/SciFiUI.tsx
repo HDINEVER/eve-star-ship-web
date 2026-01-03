@@ -106,7 +106,7 @@ export const GsapGlassCard: React.FC<CardProps> = ({
   return (
     <div 
       ref={cardRef}
-      className={`relative group bg-black/40 backdrop-blur-sm border border-white/10 overflow-hidden will-change-transform gpu-accelerated ${className}`}
+      className={`relative group bg-black/60 backdrop-blur-md border border-white/15 overflow-hidden will-change-transform gpu-accelerated shadow-2xl shadow-black/50 ${className}`}
       style={{
         // More aggressive Cyberpunk angled cut
         clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 30px), calc(100% - 30px) 100%, 0 100%)',
@@ -121,6 +121,9 @@ export const GsapGlassCard: React.FC<CardProps> = ({
             background: `radial-gradient(circle at 50% 0%, ${glowColor}, transparent 70%)` 
         }}
       />
+      
+      {/* Card Inner Gradient for better text readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/60 pointer-events-none" />
 
       {/* Tech Decoration Lines - Top Right */}
       <div className="absolute top-0 right-0 w-24 h-[2px] bg-white/10 group-hover:w-full group-hover:bg-white/30 transition-all duration-700 ease-out" />
@@ -163,15 +166,15 @@ export const SectionHeader: React.FC<{ title: string; color: string }> = ({ titl
     }, { scope: headerRef });
 
     return (
-        <div ref={headerRef} className="mb-12 relative overflow-hidden">
-            <h2 ref={textRef} className="text-4xl md:text-5xl font-orbitron font-bold uppercase tracking-widest relative z-10" style={{ color, textShadow: `0 0 20px ${color}60` }}>
+        <div ref={headerRef} className="mb-6 sm:mb-12 relative overflow-hidden">
+            <h2 ref={textRef} className="text-2xl sm:text-4xl md:text-5xl font-orbitron font-bold uppercase tracking-wider sm:tracking-widest relative z-10" style={{ color, textShadow: `0 0 20px ${color}60` }}>
                 {title}
             </h2>
-            <div ref={lineRef} className="h-[2px] mt-4 relative" style={{ backgroundColor: color }}>
-                <div className="absolute bottom-[-2px] left-0 h-[2px] w-32 bg-white mix-blend-overlay" />
-                <div className="absolute right-0 -top-1 w-2 h-3 bg-white" />
+            <div ref={lineRef} className="h-[1px] sm:h-[2px] mt-2 sm:mt-4 relative" style={{ backgroundColor: color }}>
+                <div className="absolute bottom-[-2px] left-0 h-[1px] sm:h-[2px] w-16 sm:w-32 bg-white mix-blend-overlay" />
+                <div className="absolute right-0 -top-1 w-1.5 sm:w-2 h-2 sm:h-3 bg-white" />
             </div>
-            <div className="absolute top-0 right-0 text-xs font-rajdhani text-gray-500 tracking-[0.5em] opacity-50">
+            <div className="absolute top-0 right-0 text-[8px] sm:text-xs font-rajdhani text-gray-500 tracking-[0.3em] sm:tracking-[0.5em] opacity-50 hidden sm:block">
                 SEC.LEVEL 0.0
             </div>
         </div>

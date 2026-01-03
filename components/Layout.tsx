@@ -38,7 +38,10 @@ const NavItem = ({ to, icon: Icon, children }: { to: string; icon: any; children
 export const Layout: React.FC = () => {
   const location = useLocation();
   const navRef = useRef<HTMLDivElement>(null);
-  const bgRef = useRef<HTMLDivElement>(null); // Ref for the new background
+  const bgRef = useRef<HTMLDivElement>(null);
+  const blurLayer1Ref = useRef<HTMLDivElement>(null);
+  const blurLayer2Ref = useRef<HTMLDivElement>(null);
+  const blurLayer3Ref = useRef<HTMLDivElement>(null);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isNavVisible, setIsNavVisible] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -75,8 +78,8 @@ export const Layout: React.FC = () => {
 
           // Background "若隐若现" - 使用 quickTo 优化性能
           if (quickY && quickOpacity) {
-            quickY(currentScrollY * 0.1);
-            quickOpacity(0.15 + (scrollProgress * 0.25));
+            quickY(currentScrollY * 0.08);
+            quickOpacity(0.35 + (scrollProgress * 0.2)); // 提高基础透明度
           }
           
           ticking = false;
@@ -101,11 +104,50 @@ export const Layout: React.FC = () => {
       willChange: "transform, opacity"
     });
 
-    // Background Breathing (Ghostly effect) - 优化模糊动画
+    // Background Breathing (Ghostly effect) - 优化动画更加明显
     if (bgRef.current) {
+        // 主背景缓慢缩放
         gsap.to(bgRef.current, {
-            filter: 'blur(5px)',
-            duration: 4,
+            scale: 1.08,
+            duration: 25,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+            force3D: true
+        });
+    }
+
+    // 浮动高斯模糊层动画
+    if (blurLayer1Ref.current) {
+        gsap.to(blurLayer1Ref.current, {
+            x: 100,
+            y: -50,
+            scale: 1.2,
+            duration: 15,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+            force3D: true
+        });
+    }
+    if (blurLayer2Ref.current) {
+        gsap.to(blurLayer2Ref.current, {
+            x: -80,
+            y: 60,
+            scale: 0.9,
+            duration: 18,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+            force3D: true
+        });
+    }
+    if (blurLayer3Ref.current) {
+        gsap.to(blurLayer3Ref.current, {
+            x: 50,
+            y: 80,
+            scale: 1.1,
+            duration: 22,
             repeat: -1,
             yoyo: true,
             ease: "sine.inOut",
@@ -123,30 +165,93 @@ export const Layout: React.FC = () => {
       
       {/* --- DYNAMIC BACKGROUND LAYER --- */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        {/* The Citadel / Station Image */}
-        {/* Note: Using a high-res EVE Online Citadel artwork URL. Replace with local path if needed. */}
+        
+        {/* 主背景图片层 */}
         <div 
             ref={bgRef}
             className="absolute inset-0 bg-cover bg-center will-change-transform gpu-accelerated"
             style={{ 
-                // Using a reliable EVE Citadel wallpaper URL
-                backgroundImage: `url('https://images.contentstack.io/v3/assets/blt71c4c37f37d37704/blt6d5257e844502012/5ea74e7c706d991b1d7d07c0/EVE_Online_Citadel_KeyArt_1920x1080.jpg')`,
-                opacity: 0.15, // Start very faint
-                filter: 'blur(3px)', // Initial Partial Blur
-                transform: 'scale(1.1) translate3d(0, 0, 0)', // GPU 加速 + 允许视差移动
+                backgroundImage: `
+                  url('/bg-main.webp'),
+                  url('https://images.contentstack.io/v3/assets/blt71c4c37f37d37704/blt6d5257e844502012/5ea74e7c706d991b1d7d07c0/EVE_Online_Citadel_KeyArt_1920x1080.jpg'),
+                  linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 50%, #0a0a1a 100%)
+                `,
+                opacity: 0.5,
+                transform: 'scale(1.1) translate3d(0, 0, 0)',
                 backfaceVisibility: 'hidden',
-                perspective: 1000
+            }}
+        />
+
+        {/* === 浮动高斯模糊层 - 高级视觉效果 === */}
+        
+        {/* 模糊层 1 - 青色光晕 */}
+        <div 
+            ref={blurLayer1Ref}
+            className="absolute w-[60vw] h-[60vw] rounded-full will-change-transform"
+            style={{
+                top: '-10%',
+                right: '-10%',
+                background: 'radial-gradient(circle, rgba(34,211,238,0.15) 0%, rgba(34,211,238,0.05) 40%, transparent 70%)',
+                filter: 'blur(80px)',
+                transform: 'translate3d(0, 0, 0)',
             }}
         />
         
-        {/* Dark Overlay Gradient to ensure text pop */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
+        {/* 模糊层 2 - 紫色光晕 */}
+        <div 
+            ref={blurLayer2Ref}
+            className="absolute w-[50vw] h-[50vw] rounded-full will-change-transform"
+            style={{
+                bottom: '-15%',
+                left: '-10%',
+                background: 'radial-gradient(circle, rgba(139,92,246,0.12) 0%, rgba(139,92,246,0.04) 40%, transparent 70%)',
+                filter: 'blur(100px)',
+                transform: 'translate3d(0, 0, 0)',
+            }}
+        />
+        
+        {/* 模糊层 3 - 蓝色光晕 */}
+        <div 
+            ref={blurLayer3Ref}
+            className="absolute w-[40vw] h-[40vw] rounded-full will-change-transform"
+            style={{
+                top: '40%',
+                left: '30%',
+                background: 'radial-gradient(circle, rgba(59,130,246,0.1) 0%, rgba(59,130,246,0.03) 40%, transparent 70%)',
+                filter: 'blur(60px)',
+                transform: 'translate3d(0, 0, 0)',
+            }}
+        />
+
+        {/* 额外的动态光点 */}
+        <div className="absolute w-[30vw] h-[30vw] rounded-full animate-pulse"
+            style={{
+                top: '20%',
+                right: '20%',
+                background: 'radial-gradient(circle, rgba(6,182,212,0.08) 0%, transparent 60%)',
+                filter: 'blur(40px)',
+            }}
+        />
+        
+        {/* 暗色渐变覆盖层 - 确保文字可读性 */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30" />
+
+        {/* 细微噪点纹理 - 增加质感 */}
+        <div className="absolute inset-0 opacity-[0.02]" 
+            style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+            }}
+        />
 
         {/* Tech Grid Pattern Overlay */}
         <div className="absolute inset-0 bg-grid-pattern opacity-10 mix-blend-screen" />
         
-        {/* Top Horizon Line */}
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent opacity-50" />
+        {/* 顶部发光线 */}
+        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent" />
+        
+        {/* 底部发光线 */}
+        <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent" />
       </div>
 
       {/* 

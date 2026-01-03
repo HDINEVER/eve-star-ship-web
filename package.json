@@ -9,16 +9,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@gsap/react": "2.1.0",
+    "gsap": "3.12.5",
+    "lucide-react": "^0.562.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "lucide-react": "^0.562.0",
-    "react-router-dom": "^7.11.0",
-    "gsap": "3.12.5",
-    "@gsap/react": "2.1.0"
+    "react-router-dom": "^7.11.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.0",
+    "sharp": "^0.34.5",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
   }
