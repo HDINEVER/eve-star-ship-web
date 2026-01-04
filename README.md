@@ -1,20 +1,57 @@
 <div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+
+# 🚀 EVE Star Ship Viewer (Web)
+
+### High-Fidelity 3D Ship Inspection & Faction Hub
+
+![Demo](public/ship_selector_demo.webp)
+
 </div>
 
-# Run and deploy your AI Studio app
+---
 
-This contains everything you need to run your app locally.
+## ✨ Features
 
-View your app in AI Studio: https://ai.studio/apps/drive/1TTnh-CuALu-7gn0YV_xyRxJsDGGoPUIE
+- **🛡️ Faction Hub**: Seamlessly browse ships from major EVE Online factions (Amarr, Caldari, Gallente, Minmatar).
+- **🔭 3D Inspection**: Interactive models with zoom, rotation, and detail viewing using optimized WebGL.
+- **📱 Responsive Design**: A fluid experience across desktop, tablet, and mobile devices.
+- **⚡ Performance**: Powered by Vite and React for instant load times and smooth transitions.
 
-## Run Locally
+<div align="center">
+  <img src="public/multi_ship_demo.webp" alt="Multi-Model Demo" width="80%">
+  <br>
+  <em>Multi-model switching capability</em>
+</div>
 
-**Prerequisites:**  Node.js
+---
 
+## 🛠️ Tech Stack
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+
+---
+
+## 🚀 Getting Started
+
+1. **Install dependencies:**
+
+   ```bash
+   npm install
+   ```
+
+2. **Configure Environment:**
+   Set `GEMINI_API_KEY` in `.env.local` if using AI features.
+
+3. **Run Locally:**
+   ```bash
+   npm run dev
+   ```
+
+---
+
+<div align="center">
+  <sub>Built for capsuleers within the EVE Universe.</sub>
+</div>
