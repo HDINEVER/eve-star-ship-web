@@ -46,11 +46,21 @@
       }
     </script>
     <style>
-      /* 高刷新率优化 - 支持最高144Hz */
-      * {
-        /* 启用 GPU 加速 */
-        -webkit-backface-visibility: hidden;
-        backface-visibility: hidden;
+      /* 设备自适应性能策略 */
+      /* GPU 加速层 - 只应用于需要的元素 */
+      .gpu-layer {
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+      }
+      
+      /* 减少动效 - 尊重用户系统设置 */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
       }
       
       body {

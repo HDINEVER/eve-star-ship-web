@@ -4,9 +4,13 @@ import { Home, Download, Headset, Pin, ChevronRight, Activity } from 'lucide-rea
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 
-// 配置 GSAP 高刷新率支持
-gsap.ticker.fps(144);
-gsap.ticker.lagSmoothing(0);
+// 设备自适应性能配置
+const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// 根据设备类型调整帧率：移动端 60fps，桌面 144fps
+gsap.ticker.fps(isMobileDevice ? 60 : 144);
+gsap.ticker.lagSmoothing(isMobileDevice ? 500 : 0);
 gsap.config({ force3D: true });
 
 const NavItem = ({ to, icon: Icon, children }: { to: string; icon: any; children?: React.ReactNode }) => (
@@ -109,55 +113,57 @@ export const Layout: React.FC = () => {
       willChange: "transform, opacity"
     });
 
-    // Background Breathing (Ghostly effect) - 优化动画更加明显
-    if (bgRef.current) {
-        // 主背景缓慢缩放
+    // Background Breathing (Ghostly effect) - 全设备启用动画，通过帧率控制性能
+    if (bgRef.current && !prefersReducedMotion) {
         gsap.to(bgRef.current, {
-            scale: 1.08,
-            duration: 25,
+            scale: isMobileDevice ? 1.03 : 1.08, // 移动端幅度稍小
+            duration: isMobileDevice ? 30 : 25,
             repeat: -1,
             yoyo: true,
             ease: "sine.inOut",
-            force3D: true
+            force3D: true // 强制 GPU 加速
         });
     }
 
-    // 浮动高斯模糊层动画
-    if (blurLayer1Ref.current) {
-        gsap.to(blurLayer1Ref.current, {
-            x: 100,
-            y: -50,
-            scale: 1.2,
-            duration: 15,
-            repeat: -1,
-            yoyo: true,
-            ease: "sine.inOut",
-            force3D: true
-        });
-    }
-    if (blurLayer2Ref.current) {
-        gsap.to(blurLayer2Ref.current, {
-            x: -80,
-            y: 60,
-            scale: 0.9,
-            duration: 18,
-            repeat: -1,
-            yoyo: true,
-            ease: "sine.inOut",
-            force3D: true
-        });
-    }
-    if (blurLayer3Ref.current) {
-        gsap.to(blurLayer3Ref.current, {
-            x: 50,
-            y: 80,
-            scale: 1.1,
-            duration: 22,
-            repeat: -1,
-            yoyo: true,
-            ease: "sine.inOut",
-            force3D: true
-        });
+    // 浮动高斯模糊层动画 - 保留动画但确保 GPU 加速
+    if (!prefersReducedMotion) {
+        // 移动端也保留动画，依靠 GSAP 的 60fps 限制和 force3D 优化性能
+        if (blurLayer1Ref.current) {
+            gsap.to(blurLayer1Ref.current, {
+                x: 100,
+                y: -50,
+                scale: 1.2,
+                duration: 15,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut",
+                force3D: true
+            });
+        }
+        if (blurLayer2Ref.current) {
+            gsap.to(blurLayer2Ref.current, {
+                x: -80,
+                y: 60,
+                scale: 0.9,
+                duration: 18,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut",
+                force3D: true
+            });
+        }
+        if (blurLayer3Ref.current) {
+            gsap.to(blurLayer3Ref.current, {
+                x: 50,
+                y: 80,
+                scale: 1.1,
+                duration: 22,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut",
+                force3D: true
+            });
+        }
     }
   }, [isNavVisible, isNavPinned, isNavHovered]);
 
@@ -189,7 +195,6 @@ export const Layout: React.FC = () => {
 
         {/* === 浮动高斯模糊层 - 高级视觉效果 === */}
         
-        {/* 模糊层 1 - 青色光晕 */}
         <div 
             ref={blurLayer1Ref}
             className="absolute w-[60vw] h-[60vw] rounded-full will-change-transform"
@@ -197,12 +202,11 @@ export const Layout: React.FC = () => {
                 top: '-10%',
                 right: '-10%',
                 background: 'radial-gradient(circle, rgba(34,211,238,0.15) 0%, rgba(34,211,238,0.05) 40%, transparent 70%)',
-                filter: 'blur(80px)',
+                filter: isMobileDevice ? 'none' : 'blur(80px)', // 桌面端启用模糊，移动端禁用
                 transform: 'translate3d(0, 0, 0)',
             }}
         />
         
-        {/* 模糊层 2 - 紫色光晕 */}
         <div 
             ref={blurLayer2Ref}
             className="absolute w-[50vw] h-[50vw] rounded-full will-change-transform"
@@ -210,12 +214,11 @@ export const Layout: React.FC = () => {
                 bottom: '-15%',
                 left: '-10%',
                 background: 'radial-gradient(circle, rgba(139,92,246,0.12) 0%, rgba(139,92,246,0.04) 40%, transparent 70%)',
-                filter: 'blur(100px)',
+                filter: isMobileDevice ? 'none' : 'blur(100px)', // 桌面端启用模糊，移动端禁用
                 transform: 'translate3d(0, 0, 0)',
             }}
         />
         
-        {/* 模糊层 3 - 蓝色光晕 */}
         <div 
             ref={blurLayer3Ref}
             className="absolute w-[40vw] h-[40vw] rounded-full will-change-transform"
@@ -223,7 +226,7 @@ export const Layout: React.FC = () => {
                 top: '40%',
                 left: '30%',
                 background: 'radial-gradient(circle, rgba(59,130,246,0.1) 0%, rgba(59,130,246,0.03) 40%, transparent 70%)',
-                filter: 'blur(60px)',
+                filter: isMobileDevice ? 'none' : 'blur(60px)', // 桌面端启用模糊，移动端禁用
                 transform: 'translate3d(0, 0, 0)',
             }}
         />
@@ -234,7 +237,7 @@ export const Layout: React.FC = () => {
                 top: '20%',
                 right: '20%',
                 background: 'radial-gradient(circle, rgba(6,182,212,0.08) 0%, transparent 60%)',
-                filter: 'blur(40px)',
+                filter: isMobileDevice ? 'none' : 'blur(40px)', // 桌面端启用模糊，移动端禁用
             }}
         />
         

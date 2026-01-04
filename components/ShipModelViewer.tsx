@@ -162,7 +162,7 @@ export const ShipModelViewer: React.FC<ShipModelViewerProps> = ({
             }}
           />
           <div 
-            className="absolute top-2 left-2 w-3 h-3 animate-ping"
+            className="absolute top-2 left-2 w-3 h-3 animate-ping will-change-transform"
             style={{ backgroundColor: factionColor }}
           />
         </div>
@@ -175,7 +175,7 @@ export const ShipModelViewer: React.FC<ShipModelViewerProps> = ({
             }}
           />
           <div 
-            className="absolute top-2 right-2 w-3 h-3 animate-ping"
+            className="absolute top-2 right-2 w-3 h-3 animate-ping will-change-transform"
             style={{ backgroundColor: factionColor }}
           />
         </div>
@@ -188,7 +188,7 @@ export const ShipModelViewer: React.FC<ShipModelViewerProps> = ({
             }}
           />
           <div 
-            className="absolute bottom-2 left-2 w-3 h-3 animate-ping"
+            className="absolute bottom-2 left-2 w-3 h-3 animate-ping will-change-transform"
             style={{ backgroundColor: factionColor }}
           />
         </div>
@@ -201,7 +201,7 @@ export const ShipModelViewer: React.FC<ShipModelViewerProps> = ({
             }}
           />
           <div 
-            className="absolute bottom-2 right-2 w-3 h-3 animate-ping"
+            className="absolute bottom-2 right-2 w-3 h-3 animate-ping will-change-transform"
             style={{ backgroundColor: factionColor }}
           />
         </div>

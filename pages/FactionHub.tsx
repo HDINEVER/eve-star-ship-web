@@ -6,8 +6,9 @@ import { FACTIONS } from '../data';
 import { SectionHeader } from '../components/SciFiUI';
 import { BookOpen, Anchor, MonitorPlay, ChevronRight, Binary, Crosshair, Radio } from 'lucide-react';
 
-// 配置高刷新率支持
-gsap.ticker.fps(144);
+// 设备自适应性能配置
+const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
+gsap.ticker.fps(isMobileDevice ? 60 : 144);
 gsap.config({ force3D: true });
 
 export const FactionHub: React.FC = () => {
