@@ -382,7 +382,8 @@ export const ShipModelViewer: React.FC<ShipModelViewerProps> = ({
           <iframe
             ref={iframeRef}
             src={modelUrl}
-            className="w-full h-full border-0"
+            className="w-full h-full border-0 block"
+            style={{ display: 'block' }}
             onLoad={handleIframeLoad}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; fullscreen"
             allowFullScreen

@@ -3,6 +3,7 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Home, Download, Headset, Pin, ChevronRight, Activity } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+import { useModal } from '../contexts/ModalContext';
 
 // 设备自适应性能配置
 const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
@@ -13,27 +14,32 @@ gsap.ticker.fps(isMobileDevice ? 60 : 144);
 gsap.ticker.lagSmoothing(isMobileDevice ? 500 : 0);
 gsap.config({ force3D: true });
 
-const NavItem = ({ to, icon: Icon, children }: { to: string; icon: any; children?: React.ReactNode }) => (
+const NavItem = ({ to, icon: Icon, children, end }: { to: string; icon: any; children?: React.ReactNode; end?: boolean }) => (
   <NavLink
     to={to}
+    end={end}
     className={({ isActive }) =>
       `relative flex items-center gap-2 px-4 py-2 font-orbitron text-xs font-bold uppercase tracking-widest transition-all duration-300 group overflow-hidden rounded-sm
+       active:scale-95 active:bg-cyan-900/40 touch-manipulation
       ${isActive 
-        ? 'text-cyan-400 bg-cyan-900/20' 
+        ? 'text-cyan-400 bg-cyan-900/20 shadow-[0_0_15px_rgba(34,211,238,0.3)]' 
         : 'text-gray-400 hover:text-white hover:bg-white/5'
       }`
     }
   >
     {({ isActive }) => (
       <>
-        {/* Hover/Active Glitch Line */}
-        <span className={`absolute left-0 top-0 w-[2px] h-full bg-cyan-400 transition-all duration-300 ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-50'}`} />
+        {/* Hover/Active Glitch Line (Desktop) */}
+        <span className={`absolute left-0 top-0 w-[2px] h-full bg-cyan-400 transition-all duration-300 ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
         
-        <Icon size={14} className={`transition-transform duration-300 ${isActive ? 'scale-110 shadow-cyan-400' : 'group-hover:scale-110'}`} />
+        {/* Scanline Effect (Hover) */}
+        <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-cyan-400/10 to-transparent -translate-x-[150%] skew-x-12 group-hover:translate-x-[150%] transition-transform duration-700 ease-in-out pointer-events-none" />
+
+        <Icon size={14} className={`transition-transform duration-300 ${isActive ? 'scale-110 shadow-cyan-400 drop-shadow-[0_0_5px_rgba(34,211,238,0.8)]' : 'group-hover:scale-110 group-active:scale-95'}`} />
         <span>{children}</span>
         
         {/* Active Glow Bottom */}
-        <span className={`absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-0'}`} />
+        <span className={`absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-50'}`} />
       </>
     )}
   </NavLink>
@@ -51,6 +57,9 @@ export const Layout: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isNavPinned, setIsNavPinned] = useState(true);
   const [isNavHovered, setIsNavHovered] = useState(false);
+
+  // Get modal state from context
+  const { isModalOpen } = useModal();
 
   // Handle Scroll Logic & Background Parallax - 优化版本
   useEffect(() => {
@@ -103,7 +112,8 @@ export const Layout: React.FC = () => {
   useGSAP(() => {
     // Nav Animation - 使用 force3D 启用 GPU 加速
     // 固定状态或悬停时显示，否则根据滚动状态显示
-    const shouldShow = isNavPinned || isNavHovered || isNavVisible;
+    // 如果模态框打开，则隐藏导航栏
+    const shouldShow = !isModalOpen && (isNavPinned || isNavHovered || isNavVisible);
     gsap.to(navRef.current, {
       y: shouldShow ? 0 : -100,
       opacity: shouldShow ? 1 : 0,
@@ -165,15 +175,16 @@ export const Layout: React.FC = () => {
             });
         }
     }
-  }, [isNavVisible, isNavPinned, isNavHovered]);
+  }, [isNavVisible, isNavPinned, isNavHovered, isModalOpen]);
 
   const togglePin = () => {
     setIsNavPinned(!isNavPinned);
   };
 
   return (
-    <div className="relative min-h-screen bg-black text-white font-rajdhani overflow-hidden selection:bg-cyan-500/30 selection:text-cyan-100">
+    <div className="relative min-h-screen bg-black text-white font-rajdhani overflow-x-hidden selection:bg-cyan-500/30 selection:text-cyan-100">
       
+      {/* ... (Background layers remain the same, ommitted for brevity if using replace, but replacing Layout logic so need to keep structure) ... */}
       {/* --- DYNAMIC BACKGROUND LAYER --- */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         
@@ -258,8 +269,8 @@ export const Layout: React.FC = () => {
         {/* 顶部发光线 */}
         <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent" />
         
-        {/* 底部发光线 */}
-        <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent" />
+        {/* 底部发光线 - removed fixed bottom line since footer is now static at bottom of content */}
+        {/* <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent" /> */}
       </div>
 
       {/* 
@@ -267,7 +278,7 @@ export const Layout: React.FC = () => {
          Centered, Floating, Auto-Hiding 
       */}
       <div 
-        className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-6 pointer-events-none"
+        className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-4 sm:pt-6 pointer-events-none"
         onMouseEnter={() => setIsNavHovered(true)}
         onMouseLeave={() => setIsNavHovered(false)}
       >
@@ -275,9 +286,9 @@ export const Layout: React.FC = () => {
             ref={navRef}
             className={`
                 pointer-events-auto
-                flex items-center gap-1 px-2 py-2 rounded-full border transition-all duration-500
+                flex items-center gap-1 px-3 py-2 sm:px-2 rounded-full border transition-all duration-500
                 ${isScrolled 
-                    ? 'bg-black/70 backdrop-blur-xl border-white/20 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.8)]' 
+                    ? 'bg-black/80 backdrop-blur-xl border-white/20 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.8)]' 
                     : 'bg-transparent border-transparent'
                 }
             `}
@@ -288,17 +299,35 @@ export const Layout: React.FC = () => {
                 <span>ONLINE</span>
             </div>
 
-            <div className="flex items-center">
-                <NavItem to="/" icon={Home}>Nexus</NavItem>
+            <div className="flex items-center gap-1 sm:gap-0">
+                <NavItem to="/" icon={Home} end>Nexus</NavItem>
                 
                 <div className="w-[1px] h-4 bg-white/10 mx-1"></div>
                 
-                <a href="#" onClick={(e) => e.preventDefault()} className="group relative flex items-center gap-2 px-4 py-2 font-orbitron text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-gray-300 transition-colors cursor-not-allowed">
-                    <Download size={14} /> Download
+                {/* Official Website */}
+                <a 
+                  href="https://www.eveonline.com/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="group relative flex items-center gap-2 px-3 sm:px-4 py-2 font-orbitron text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-300 rounded-sm"
+                  title="Official Site"
+                >
+                    <Activity size={14} className="group-hover:scale-110 transition-transform duration-300" /> 
+                    <span className="hidden sm:inline">Official Site</span>
+                    <span className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </a>
                 
-                <a href="#" onClick={(e) => e.preventDefault()} className="group relative flex items-center gap-2 px-4 py-2 font-orbitron text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-gray-300 transition-colors cursor-not-allowed">
-                    <Headset size={14} /> Comms
+                {/* Download Game */}
+                <a 
+                  href="https://www.eveonline.com/download" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="group relative flex items-center gap-2 px-3 sm:px-4 py-2 font-orbitron text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-300 rounded-sm"
+                  title="Download"
+                >
+                    <Download size={14} className="group-hover:scale-110 transition-transform duration-300" /> 
+                    <span className="hidden sm:inline">Download</span>
+                    <span className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </a>
             </div>
 
@@ -311,7 +340,7 @@ export const Layout: React.FC = () => {
                             ? 'bg-cyan-500/20 text-cyan-400' 
                             : 'bg-white/5 hover:bg-cyan-500/20 text-gray-400 hover:text-cyan-400'
                     }`}
-                    title={isNavPinned ? "取消固定导航栏" : "固定导航栏"}
+                    title={isNavPinned ? "Unpin Navigation" : "Pin Navigation"}
                 >
                     <Pin size={14} className={`transition-transform duration-300 ${isNavPinned ? 'rotate-45' : ''}`} />
                 </button>
@@ -320,7 +349,7 @@ export const Layout: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <main className="relative z-10 pt-32 min-h-screen flex flex-col">
+      <main className="relative z-10 pt-28 sm:pt-32 min-h-screen flex flex-col pb-20">
          {/* Animated Breadcrumb Mockup - Pushed down slightly */}
         <div className="container mx-auto px-6 mb-4 flex items-center text-[10px] text-cyan-500/60 font-orbitron tracking-widest opacity-80">
             <span className="w-2 h-2 bg-cyan-500/50 rounded-full mr-2 animate-pulse"></span>
@@ -338,11 +367,43 @@ export const Layout: React.FC = () => {
         <Outlet />
       </main>
 
-      {/* Footer Decoration */}
-      <div className="fixed bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-black to-transparent z-40 pointer-events-none flex justify-between px-8 items-end pb-2 text-[10px] text-gray-600 font-orbitron">
-        <span>CONCORD // SECURE CONNECTION</span>
-        <span>VERSION 2.4.1 // YC 125</span>
+      {/* Footer Decoration & Credits - Now STATIC relative to document flow (not fixed) */}
+      {/* Hide when modal is open */}
+      {!isModalOpen && (
+      <div className="relative z-40 w-full border-t border-white/5 mt-auto bg-gradient-to-t from-black/60 to-transparent">
+        <div className="container mx-auto px-6 py-8 flex flex-col items-center justify-center gap-4">
+            
+            {/* Credits Bar */}
+            <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-8 text-[10px] sm:text-xs text-gray-500 font-orbitron tracking-wider">
+                <span className="flex items-center gap-2">
+                    <span className="text-gray-600">ARCHITECT</span> 
+                    <a href="https://github.com/HDINEVER" target="_blank" rel="noopener noreferrer" className="text-cyan-500 hover:text-cyan-300 transition-colors">HDINEVER</a>
+                </span>
+                <span className="text-gray-800">|</span>
+                <span className="flex items-center gap-2">
+                    <span className="text-gray-600">DESIGN</span> 
+                    <span className="text-gray-400">墨羽辰</span>
+                </span>
+                <span className="text-gray-800">|</span>
+                <span className="flex items-center gap-2">
+                    <span className="text-gray-600">CONTRIBUTOR</span> 
+                    <span className="text-gray-400">悠子</span>
+                </span>
+            </div>
+
+            {/* System Info */} 
+            <div className="flex items-center gap-2 text-[9px] text-gray-700 font-orbitron tracking-widest opacity-60">
+                <span>CONCORD // SECURE CONNECTION</span>
+                <span className="w-1 h-1 bg-gray-700 rounded-full"></span>
+                <span>YC 125</span>
+            </div>
+            
+        </div>
+        
+        {/* Bottom glowing line decoration */}
+        <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-900/50 to-transparent" />
       </div>
+      )}
     </div>
   );
 };

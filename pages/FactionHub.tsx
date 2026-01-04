@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useParams, Link, Navigate } from 'react-router-dom';
+import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { FACTIONS } from '../data';
 import { SectionHeader } from '../components/SciFiUI';
-import { BookOpen, Anchor, MonitorPlay, ChevronRight, Binary, Crosshair, Radio } from 'lucide-react';
+import { BookOpen, Anchor, MonitorPlay, ChevronRight, Binary, Crosshair, Radio, ArrowLeft } from 'lucide-react';
 
 // 设备自适应性能配置
 const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
@@ -13,6 +13,7 @@ gsap.config({ force3D: true });
 
 export const FactionHub: React.FC = () => {
   const { factionId } = useParams<{ factionId: string }>();
+  const navigate = useNavigate();
   const faction = factionId ? FACTIONS[factionId] : null;
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -181,8 +182,20 @@ export const FactionHub: React.FC = () => {
     });
   }, { scope: containerRef });
 
-  return (
-    <div ref={containerRef} className="container mx-auto px-3 sm:px-4 py-2 sm:py-4 flex flex-col items-center justify-center min-h-[90vh] sm:min-h-[85vh] relative overflow-hidden">
+    // Mobile: Tap on background to go back
+    const handleBackgroundClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        // Only trigger if the click is on the container itself, not on a child element (like cards)
+        if (e.target === e.currentTarget) {
+            navigate('/');
+        }
+    };
+
+    return (
+    <div 
+        ref={containerRef} 
+        className="container mx-auto px-3 sm:px-4 py-2 sm:py-4 flex flex-col items-center justify-center min-h-[90vh] sm:min-h-[85vh] relative overflow-hidden cursor-pointer sm:cursor-default"
+        onClick={handleBackgroundClick}
+    >
       
       {/* 
          --- BACKGROUND WATERMARK LOGO --- 
@@ -198,8 +211,19 @@ export const FactionHub: React.FC = () => {
       </div>
 
       {/* Top Header - Compact */}
-      <div className="relative z-10 w-full mb-3 sm:mb-6">
-          <SectionHeader title={faction.name} color={faction.color} />
+      <div className="relative z-10 w-full mb-3 sm:mb-6 flex items-center gap-4">
+          {/* Back Button (Desktop) */}
+          <button 
+              onClick={() => navigate('/')}
+              className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/30 rounded transition-all duration-300 active:scale-95 group"
+              title="返回首页"
+          >
+              <ArrowLeft size={16} className="text-gray-400 group-hover:text-white transition-colors" />
+              <span className="font-orbitron text-xs text-gray-400 group-hover:text-white uppercase tracking-wider">Back</span>
+          </button>
+          <div className="flex-1">
+              <SectionHeader title={faction.name} color={faction.color} />
+          </div>
       </div>
 
       {/* 

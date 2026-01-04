@@ -102,6 +102,18 @@ export const GsapGlassCard: React.FC<CardProps> = ({
                 force3D: true
             });
         });
+        
+        // Touch Optimizations (Mobile Press Effect)
+        card.addEventListener('touchstart', () => {
+             // Simpler press effect for mobile
+             gsap.to(card, { scale: 0.96, duration: 0.1, ease: "power1.out", force3D: true });
+             gsap.to(card, { borderColor: borderColor, boxShadow: `0 0 20px -5px ${glowColor}`, duration: 0.2 });
+        }, { passive: true });
+
+        card.addEventListener('touchend', () => {
+             gsap.to(card, { scale: 1, duration: 0.3, ease: "elastic.out(1, 0.5)", force3D: true });
+             gsap.to(card, { borderColor: 'rgba(255,255,255,0.1)', boxShadow: 'none', duration: 0.3 });
+        }, { passive: true });
     }
   }, { scope: cardRef });
 

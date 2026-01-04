@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Navigate, Link } from 'react-router-dom';
 import { FACTIONS } from '../data';
 import { GsapGlassCard, SectionHeader } from '../components/SciFiUI';
 import { ShipModelViewer } from '../components/ShipModelViewer';
 import { ChevronLeft, View } from 'lucide-react';
 import { ShipData } from '../types';
+import { useModal } from '../contexts/ModalContext';
 
 const BackButton: React.FC<{ factionId: string; color: string }> = ({ factionId, color }) => (
     <Link 
@@ -62,9 +63,17 @@ export const FactionShips: React.FC = () => {
     const { factionId } = useParams<{ factionId: string }>();
     const faction = factionId ? FACTIONS[factionId] : null;
     
+    // Modal context to hide nav bar
+    const { setIsModalOpen } = useModal();
+    
     // 模态框状态
     const [selectedShip, setSelectedShip] = useState<ShipData | null>(null);
     const [isViewerOpen, setIsViewerOpen] = useState(false);
+
+    // Sync modal state with context
+    useEffect(() => {
+        setIsModalOpen(isViewerOpen);
+    }, [isViewerOpen, setIsModalOpen]);
 
     if (!faction) return <Navigate to="/" />;
 

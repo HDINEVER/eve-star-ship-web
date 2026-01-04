@@ -12,11 +12,12 @@ gsap.config({ force3D: true });
 
 export const Home: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const titleContainerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const [hoveredFaction, setHoveredFaction] = useState<string | null>(null);
 
   useGSAP(() => {
-    // Title Animation - 优化版本
+    // Initial Entrance Animation
     gsap.fromTo(titleRef.current,
         { opacity: 0, y: -50 },
         { 
@@ -28,26 +29,60 @@ export const Home: React.FC = () => {
             willChange: "transform, opacity"
         }
     );
+
+    // Scroll Effect Listener
+    const handleScroll = () => {
+        if (!titleContainerRef.current) return;
+        const scrollY = window.scrollY;
+        // Parallax & Fade effect
+        gsap.to(titleContainerRef.current, {
+            y: scrollY * 0.5, // Move down at half speed (parallax)
+            opacity: 1 - scrollY / 500, // Fade out
+            scale: 1 - scrollY / 1000, // Slight scale down
+            duration: 0.1,
+            overwrite: 'auto',
+            ease: 'none'
+        });
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, { scope: containerRef });
 
   return (
     <div ref={containerRef} className="container mx-auto px-3 sm:px-4 py-6 sm:py-12 flex flex-col items-center justify-center min-h-[85vh] relative z-10">
       
-      {/* Main Title - Pure Orbitron Dominance */}
-      <div className="text-center mb-8 sm:mb-20 relative">
-        {/* Enhanced Glow Background */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-cyan-500/15 blur-[120px] rounded-full pointer-events-none animate-pulse" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[100%] h-[100%] bg-blue-600/10 blur-[80px] rounded-full pointer-events-none" />
+      {/* Main Title - Audiowide with Scroll Effects */}
+      <div ref={titleContainerRef} className="text-center mb-12 sm:mb-24 relative perspective-1000 will-change-transform">
+        {/* Enhanced Glow Background - Softened */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[180%] h-[180%] bg-cyan-500/5 blur-[120px] rounded-full pointer-events-none animate-pulse-slow" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[100%] h-[100%] bg-blue-600/5 blur-[80px] rounded-full pointer-events-none mix-blend-overlay" />
         
-        <h1 ref={titleRef} className="relative z-10 text-4xl sm:text-6xl md:text-9xl font-orbitron font-black text-transparent bg-clip-text bg-gradient-to-b from-white via-cyan-200 to-cyan-600 tracking-tighter" style={{ textShadow: '0 0 60px rgba(34,211,238,0.5), 0 0 120px rgba(34,211,238,0.3)' }}>
-            NEW EDEN
+        {/* Decorative Elements */}
+        <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-px h-24 bg-gradient-to-b from-transparent via-cyan-500 to-transparent opacity-50" />
+        <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-[200px] h-[1px] bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
+
+        <h1 ref={titleRef} className="relative z-10 text-[6rem] sm:text-[9rem] md:text-[13rem] leading-none font-audiowide font-black tracking-[-0.05em] select-none group cursor-default flex items-center justify-center">
+            {/* Split letters for Z-index layering */}
+            <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-b from-white via-cyan-100 to-cyan-500 drop-shadow-[0_0_30px_rgba(34,211,238,0.5)] animate-glitch-1">E</span>
+            
+            {/* The V - Larger and Behind */}
+            <span className="relative z-0 text-transparent bg-clip-text bg-gradient-to-b from-white via-cyan-200 to-cyan-600 drop-shadow-[0_0_50px_rgba(34,211,238,0.8)] -mx-4 sm:-mx-8 transform scale-125 translate-y-2">V</span>
+            
+            <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-b from-white via-cyan-100 to-cyan-500 drop-shadow-[0_0_30px_rgba(34,211,238,0.5)] animate-glitch-1">E</span>
         </h1>
-        <div className="flex items-center justify-center gap-2 sm:gap-4 mt-2 sm:mt-4">
-             <div className="h-[1px] sm:h-[2px] w-8 sm:w-16 bg-gradient-to-r from-transparent to-cyan-400/70" />
-             <p className="text-[10px] sm:text-sm text-cyan-300 font-['Noto_Sans_SC'] font-bold tracking-[0.4em] sm:tracking-[0.8em] uppercase px-2 sm:px-4 py-1 bg-black/30 backdrop-blur-sm rounded border border-cyan-500/20">
-                星战前夜 / 编年史
+        
+        <div className="flex flex-col items-center gap-2 mt-4 sm:mt-8 relative z-10">
+             <div className="flex items-center gap-4">
+                 <div className="h-[2px] w-12 sm:w-24 bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50" />
+                 <p className="text-xs sm:text-base text-cyan-200 font-['Noto_Sans_SC'] font-bold tracking-[0.5em] sm:tracking-[0.8em] uppercase px-4 py-1.5 bg-black/40 backdrop-blur-md rounded-full border border-cyan-500/20 shadow-[0_0_15px_rgba(34,211,238,0.1)]">
+                    星战前夜 <span className="text-cyan-600 mx-1">/</span> 阵营介绍
+                 </p>
+                 <div className="h-[2px] w-12 sm:w-24 bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50" />
+             </div>
+             <p className="text-[10px] text-cyan-500/50 font-orbitron tracking-[0.3em] uppercase mt-1">
+                 CHRONICLES OF NEW EDEN // YC 125
              </p>
-             <div className="h-[1px] sm:h-[2px] w-8 sm:w-16 bg-gradient-to-l from-transparent to-cyan-400/70" />
         </div>
       </div>
 
